@@ -31,5 +31,12 @@
     ]
   },
   "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-divider": "tdesign-miniprogram/divider/divider"
+  }
 }
