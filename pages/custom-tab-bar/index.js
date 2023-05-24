@@ -1,5 +1,3 @@
-// pages/index/index.js
-
 
 Page({
 
@@ -9,9 +7,9 @@ Page({
   data: {
     activeTab: 'label_bark',
     list: [
-      { value: 'label_bark', icon: 'internet',url:'/pages/bark/bark'},
-      { value: 'label_plan',  icon: 'time' ,url:'/pages/plan/plan'},
-      { value: 'label_mine', icon: 'user' ,url:'/pages/mine/mine'},
+      { value: 'label_bark', label:'Bark',icon: 'internet',url:'/pages/bark/bark'},
+      { value: 'label_plan', label:'计划', icon: 'time' ,url:'/pages/plan/plan'},
+      { value: 'label_mine', label:'我的',icon: 'user' ,url:'/pages/mine/mine'},
     ],
     tagTitles:{
         'label_bark':'Bark配置',

@@ -8,18 +8,15 @@
   
   ],
   "tabBar": {
-    "color": "#4d7a60",
-    "selectedColor": "#000000",
-    "backgroundColor": "#000000",
     "list": [{
       "pagePath": "pages/bark/bark",
       "text":"hello"
     },{
         "pagePath": "pages/plan/plan",
-        "text":"hello"
+        "text":"hello2"
       },{
         "pagePath": "pages/mine/mine",
-        "text":"hello"
+        "text":"hello3"
       }]
   },
   "window":{
