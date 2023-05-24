@@ -1,9 +1,9 @@
 const props = {
-    disableInput: {
+    disabled: {
         type: Boolean,
         value: false,
     },
-    disabled: {
+    disableInput: {
         type: Boolean,
         value: false,
     },
@@ -24,10 +24,6 @@ const props = {
     step: {
         type: Number,
         value: 1,
-    },
-    size: {
-        type: String,
-        value: 'medium',
     },
     theme: {
         type: String,

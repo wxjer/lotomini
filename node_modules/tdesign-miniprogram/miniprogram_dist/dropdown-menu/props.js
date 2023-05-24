@@ -1,16 +1,18 @@
 const props = {
+    activeColor: {
+        type: String,
+        value: '',
+    },
     closeOnClickOverlay: {
         type: Boolean,
         value: true,
     },
     duration: {
-        type: null,
+        type: String,
+        optionalTypes: [Number],
         value: 200,
     },
-    externalClasses: {
-        type: Array,
-    },
-    showOverlay: {
+    overlay: {
         type: Boolean,
         value: true,
     },

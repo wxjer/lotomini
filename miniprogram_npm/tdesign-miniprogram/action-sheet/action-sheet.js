@@ -14,15 +14,13 @@ const name = `${prefix}-action-sheet`;
 let ActionSheet = class ActionSheet extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-content`, `${prefix}-class-cancel`];
+        this.externalClasses = [`${prefix}-class`];
         this.properties = Object.assign({}, props);
         this.data = {
             prefix,
             classPrefix: name,
             gridThemeItems: [],
             currentSwiperIndex: 0,
-            defaultPopUpProps: {},
-            defaultPopUpzIndex: 11500,
         };
         this.controlledProps = [
             {
@@ -44,53 +42,42 @@ let ActionSheet = class ActionSheet extends SuperComponent {
                     gridThemeItems: chunk(this.data.items, this.data.count),
                 });
             },
-            show(options) {
-                this.setData(Object.assign(Object.assign(Object.assign({}, this.initialData), options), { visible: true }));
+            show() {
                 this.splitGridThemeActions();
-                this.autoClose = true;
                 this._trigger('visible-change', { visible: true });
+            },
+            resetData(cb) {
+                this.setData(Object.assign({}, this.initialData), cb);
             },
             memoInitialData() {
                 this.initialData = Object.assign(Object.assign({}, this.properties), this.data);
             },
             close() {
-                this.triggerEvent('close', { trigger: 'command' });
                 this._trigger('visible-change', { visible: false });
             },
             onPopupVisibleChange({ detail }) {
                 if (!detail.visible) {
-                    this.triggerEvent('close', { trigger: 'overlay' });
                     this._trigger('visible-change', { visible: false });
-                }
-                if (this.autoClose) {
-                    this.setData({ visible: false });
-                    this.autoClose = false;
                 }
             },
             onSelect(event) {
-                const { currentSwiperIndex, items, gridThemeItems, count, theme } = this.data;
+                const { currentSwiperIndex, items, gridThemeItems, count } = this.data;
                 const { index } = event.currentTarget.dataset;
-                const isSwiperMode = theme === ActionSheetTheme.Grid;
+                const isSwiperMode = items.length > count;
                 const item = isSwiperMode ? gridThemeItems[currentSwiperIndex][index] : items[index];
                 const realIndex = isSwiperMode ? index + currentSwiperIndex * count : index;
                 if (item) {
                     this.triggerEvent('selected', { selected: item, index: realIndex });
-                    this.triggerEvent('close', { trigger: 'select' });
                     this._trigger('visible-change', { visible: false });
                 }
             },
             onCancel() {
                 this.triggerEvent('cancel');
-                if (this.autoClose) {
-                    this.setData({ visible: false });
-                    this.autoClose = false;
-                }
             },
         };
     }
     ready() {
         this.memoInitialData();
-        this.splitGridThemeActions();
     }
 };
 ActionSheet.show = show;

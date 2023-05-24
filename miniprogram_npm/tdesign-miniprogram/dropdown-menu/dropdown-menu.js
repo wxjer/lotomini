@@ -12,18 +12,17 @@ const name = `${prefix}-dropdown-menu`;
 let DropdownMenu = class DropdownMenu extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-item`, `${prefix}-class-label`, `${prefix}-class-icon`];
         this.properties = props;
-        this.nodes = null;
         this.data = {
             prefix,
             classPrefix: name,
+            nodes: null,
             menus: null,
             activeIdx: -1,
             bottom: 0,
         };
         this.relations = {
-            '../dropdown-item/dropdown-item': {
+            './dropdown-item': {
                 type: 'child',
             },
         };
@@ -33,11 +32,20 @@ let DropdownMenu = class DropdownMenu extends SuperComponent {
             },
         };
         this.methods = {
-            toggle(index) {
+            getAllItems() {
+                const nodes = this.getRelationNodes('./dropdown-item');
+                const menus = nodes.map((a) => a.data);
+                this.setData({
+                    nodes,
+                    menus,
+                });
+            },
+            toggleDropdown(e) {
+                const { index: idx } = e.currentTarget.dataset;
                 const { activeIdx, duration } = this.data;
-                const prevItem = this.$children[activeIdx];
-                const currItem = this.$children[index];
-                if (currItem === null || currItem === void 0 ? void 0 : currItem.data.disabled)
+                const prevItem = this.data.nodes[activeIdx];
+                const currItem = this.data.nodes[idx];
+                if (currItem.data.disabled)
                     return;
                 if (activeIdx !== -1) {
                     prevItem.triggerEvent('close');
@@ -49,7 +57,7 @@ let DropdownMenu = class DropdownMenu extends SuperComponent {
                         }, duration);
                     });
                 }
-                if (index == null || activeIdx === index) {
+                if (activeIdx === idx) {
                     this.setData({
                         activeIdx: -1,
                     });
@@ -57,7 +65,7 @@ let DropdownMenu = class DropdownMenu extends SuperComponent {
                 else {
                     currItem.triggerEvent('open');
                     this.setData({
-                        activeIdx: index,
+                        activeIdx: idx,
                     });
                     currItem.setData({
                         show: true,
@@ -67,19 +75,6 @@ let DropdownMenu = class DropdownMenu extends SuperComponent {
                         }, duration);
                     });
                 }
-            },
-            getAllItems() {
-                const menus = this.$children.map(({ data }) => ({
-                    label: data.label || data.computedLabel,
-                    disabled: data.disabled,
-                }));
-                this.setData({
-                    menus,
-                });
-            },
-            handleToggle(e) {
-                const { index } = e.currentTarget.dataset;
-                this.toggle(index);
             },
         };
     }

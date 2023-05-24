@@ -29,5 +29,5 @@
   position: relative;
 }
 .t-sticky__content {
-  width: fit-content;
+  width: 100%;
 }

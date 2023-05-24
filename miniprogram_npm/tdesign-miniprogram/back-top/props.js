@@ -7,8 +7,8 @@ const props = {
         value: true,
     },
     icon: {
-        type: null,
-        value: true,
+        type: String,
+        value: 'backtop',
     },
     text: {
         type: String,

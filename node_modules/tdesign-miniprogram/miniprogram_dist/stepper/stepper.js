@@ -8,15 +8,19 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
 const { prefix } = config;
-const name = `${prefix}-stepper`;
 let Stepper = class Stepper extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-input`, `${prefix}-class-minus`, `${prefix}-class-plus`];
+        this.externalClasses = [
+            `${prefix}-class`,
+            `${prefix}-class-input`,
+            `${prefix}-class-minus`,
+            `${prefix}-class-plus`,
+        ];
         this.options = {
             addGlobalClass: true,
         };
-        this.properties = Object.assign({}, props);
+        this.properties = props;
         this.controlledProps = [
             {
                 key: 'value',
@@ -32,7 +36,7 @@ let Stepper = class Stepper extends SuperComponent {
         };
         this.data = {
             currentValue: 0,
-            classPrefix: name,
+            classPrefix: `${prefix}-stepper`,
             prefix,
         };
     }
@@ -84,22 +88,10 @@ let Stepper = class Stepper extends SuperComponent {
             .split('.')[0]
             .replace(/[^-0-9]/g, '') || 0;
         this.setValue(this.format(Number(value)));
-        return value;
-    }
-    focusHandle(e) {
-        const value = this.changeValue(e);
-        this.triggerEvent('focus', { value });
-    }
-    inputHandle(e) {
-        if (e.detail.value === '') {
-            return;
-        }
-        const value = this.changeValue(e);
-        this.triggerEvent('input', { value });
-    }
-    blurHandle(e) {
-        const value = this.changeValue(e);
         this.triggerEvent('blur', { value });
+    }
+    blurHandler(e) {
+        this.changeValue(e);
     }
 };
 Stepper = __decorate([

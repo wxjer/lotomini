@@ -7,28 +7,24 @@ const props = {
         value: 'horizontal',
     },
     cancelBtn: {
-        type: null,
-    },
-    closeBtn: {
-        type: null,
-        value: false,
+        type: String,
+        optionalTypes: [Object],
+        value: '',
     },
     closeOnOverlayClick: {
         type: Boolean,
-        value: undefined,
+        value: true,
     },
     confirmBtn: {
         type: null,
+        optionalTypes: [Object],
+        value: '',
     },
     content: {
         type: String,
     },
     externalClasses: {
         type: Array,
-    },
-    overlayProps: {
-        type: Object,
-        value: {},
     },
     preventScrollThrough: {
         type: Boolean,
@@ -43,10 +39,10 @@ const props = {
     },
     visible: {
         type: Boolean,
+        value: false,
     },
     zIndex: {
         type: Number,
-        value: 11500,
     },
 };
 export default props;

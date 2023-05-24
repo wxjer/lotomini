@@ -1,4 +1,7 @@
 export const trimSingleValue = (value, min, max) => {
+    if (typeof value !== 'number') {
+        return min;
+    }
     if (value < min) {
         return min;
     }

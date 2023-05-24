@@ -1,4 +1,7 @@
 const props = {
+    colors: {
+        type: Array,
+    },
     customValue: {
         type: Array,
         value: [true, false],
@@ -7,13 +10,9 @@ const props = {
         type: Boolean,
         value: false,
     },
-    icon: {
-        type: Array,
-        value: [],
-    },
     label: {
-        type: Array,
-        value: [],
+        type: String,
+        value: '',
     },
     loading: {
         type: Boolean,
@@ -24,11 +23,13 @@ const props = {
         value: 'medium',
     },
     value: {
-        type: null,
+        type: String,
+        optionalTypes: [Number, Boolean],
         value: null,
     },
     defaultValue: {
-        type: null,
+        type: String,
+        optionalTypes: [Number, Boolean],
         value: null,
     },
 };

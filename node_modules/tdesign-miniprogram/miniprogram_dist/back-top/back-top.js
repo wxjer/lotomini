@@ -7,58 +7,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
-import { calcIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-back-top`;
 let BackTop = class BackTop extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-icon`, `${prefix}-class-text`];
-        this.options = {
-            multipleSlots: true,
-        };
+        this.externalClasses = ['t-class', 't-class-icon', 't-class-text'];
         this.properties = props;
-        this.relations = {
-            '../pull-down-refresh/pull-down-refresh': {
-                type: 'ancestor',
-            },
-        };
         this.data = {
             prefix,
             classPrefix: name,
-            _icon: null,
         };
-        this.observers = {
-            icon() {
-                this.setIcon();
-            },
-        };
-        this.lifetimes = {
-            ready() {
-                const { icon } = this.properties;
-                this.setIcon(icon);
-            },
-        };
-        this.methods = {
-            setIcon(v) {
-                this.setData({
-                    _icon: calcIcon(v, 'backtop'),
-                });
-            },
-            toTop() {
-                var _a;
-                this.triggerEvent('to-top');
-                if (this.$parent) {
-                    (_a = this.$parent) === null || _a === void 0 ? void 0 : _a.setScrollTop(0);
-                }
-                else {
-                    wx.pageScrollTo({
-                        scrollTop: 0,
-                        duration: 300,
-                    });
-                }
-            },
-        };
+    }
+    toTop() {
+        this.triggerEvent('to-top');
+        wx.pageScrollTo({
+            scrollTop: 0,
+            duration: 300,
+        });
     }
 };
 BackTop = __decorate([

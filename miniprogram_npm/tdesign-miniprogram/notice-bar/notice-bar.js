@@ -5,17 +5,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { SuperComponent, wxComponent } from '../common/src/index';
-import { getRect, getAnimationFrame, calcIcon } from '../common/utils';
+import { getRect, requestAnimationFrame } from '../common/utils';
 import props from './props';
 import config from '../common/config';
 const { prefix } = config;
 const name = `${prefix}-notice-bar`;
-const THEME_ICON = {
-    info: 'info-circle-filled',
-    success: 'check-circle-filled',
-    warning: 'info-circle-filled',
-    error: 'error-circle-filled',
-};
 let NoticeBar = class NoticeBar extends SuperComponent {
     constructor() {
         super(...arguments);
@@ -23,7 +17,7 @@ let NoticeBar = class NoticeBar extends SuperComponent {
             `${prefix}-class`,
             `${prefix}-class-content`,
             `${prefix}-class-prefix-icon`,
-            `${prefix}-class-operation`,
+            `${prefix}-class-extre`,
             `${prefix}-class-suffix-icon`,
         ];
         this.options = {
@@ -56,18 +50,6 @@ let NoticeBar = class NoticeBar extends SuperComponent {
                     this.clearNoticeBarAnimation();
                 }
             },
-            prefixIcon(prefixIcon) {
-                this.setPrefixIcon(prefixIcon);
-            },
-            suffixIcon(v) {
-                this.setData({
-                    _suffixIcon: calcIcon(v),
-                });
-            },
-            content() {
-                this.clearNoticeBarAnimation();
-                this.initAnimation();
-            },
         };
         this.lifetimes = {
             created() {
@@ -79,50 +61,48 @@ let NoticeBar = class NoticeBar extends SuperComponent {
             detached() {
                 this.clearNoticeBarAnimation();
             },
-            ready() {
-                this.show();
-            },
         };
         this.methods = {
             initAnimation() {
                 const warpID = `.${name}__content-wrap`;
                 const nodeID = `.${name}__content`;
-                getAnimationFrame(this, () => {
+                requestAnimationFrame(() => {
                     Promise.all([getRect(this, nodeID), getRect(this, warpID)]).then(([nodeRect, wrapRect]) => {
                         const { marquee } = this.properties;
+                        const speeding = marquee.speed;
+                        const delaying = marquee.delay ? marquee.delay : 0;
+                        const loops = marquee.loop - 1;
                         if (nodeRect == null || wrapRect == null || !nodeRect.width || !wrapRect.width) {
                             return;
                         }
                         if (marquee || wrapRect.width < nodeRect.width) {
-                            const speeding = marquee.speed || 50;
-                            const delaying = marquee.delay || 0;
                             const animationDuration = ((wrapRect.width + nodeRect.width) / speeding) * 1000;
-                            const firstAnimationDuration = (nodeRect.width / speeding) * 1000;
+                            const firstanimationDuration = (nodeRect.width / speeding) * 1000;
                             this.setData({
                                 wrapWidth: Number(wrapRect.width),
                                 nodeWidth: Number(nodeRect.width),
                                 animationDuration: animationDuration,
                                 delay: delaying,
-                                loop: marquee.loop - 1,
-                                firstAnimationDuration: firstAnimationDuration,
+                                loop: loops,
+                                firstanimationDuration: firstanimationDuration,
                             });
-                            marquee.loop !== 0 && this.startScrollAnimation(true);
+                            this.startScrollAnimation(true);
                         }
                     });
                 });
             },
             startScrollAnimation(isFirstScroll = false) {
                 this.clearNoticeBarAnimation();
-                const { wrapWidth, nodeWidth, firstAnimationDuration, animationDuration, delay } = this.data;
+                const { wrapWidth, nodeWidth, firstanimationDuration, animationDuration, delay } = this.data;
                 const delayTime = isFirstScroll ? delay : 0;
-                const durationTime = isFirstScroll ? firstAnimationDuration : animationDuration;
+                const durationTime = isFirstScroll ? firstanimationDuration : animationDuration;
                 this.setData({
                     animationData: this.resetAnimation
                         .translateX(isFirstScroll ? 0 : wrapWidth)
                         .step()
                         .export(),
                 });
-                getAnimationFrame(this, () => {
+                requestAnimationFrame(() => {
                     this.setData({
                         animationData: wx
                             .createAnimation({ duration: durationTime, timingFunction: 'linear', delay: delayTime })
@@ -146,18 +126,29 @@ let NoticeBar = class NoticeBar extends SuperComponent {
             },
             show() {
                 this.clearNoticeBarAnimation();
-                this.setPrefixIcon(this.properties.prefixIcon);
+                this.setIcon();
                 this.initAnimation();
             },
             clearNoticeBarAnimation() {
                 this.nextAnimationContext && clearTimeout(this.nextAnimationContext);
                 this.nextAnimationContext = null;
             },
-            setPrefixIcon(v) {
-                const { theme } = this.properties;
-                this.setData({
-                    _prefixIcon: calcIcon(v, THEME_ICON[theme]),
-                });
+            setIcon() {
+                const { prefixIcon, theme } = this.properties;
+                if (prefixIcon) {
+                    this.setData({
+                        iconName: prefixIcon !== 'null' ? `${prefixIcon}` : '',
+                    });
+                }
+                else {
+                    const themeNoticeBar = {
+                        info: 'error-circle-filled',
+                        success: 'check-circle-filled',
+                        warning: 'error-circle-filled',
+                        error: 'close-circle-filled',
+                    };
+                    this.setData({ iconName: themeNoticeBar[theme] });
+                }
             },
             clickPrefixIcon() {
                 this.triggerEvent('click', { trigger: 'prefix-icon' });
@@ -168,8 +159,8 @@ let NoticeBar = class NoticeBar extends SuperComponent {
             clickSuffixIcon() {
                 this.triggerEvent('click', { trigger: 'suffix-icon' });
             },
-            clickOperation() {
-                this.triggerEvent('click', { trigger: 'operation' });
+            clickExtra() {
+                this.triggerEvent('click', { trigger: 'extra' });
             },
         };
     }

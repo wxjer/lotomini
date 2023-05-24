@@ -1,26 +1,22 @@
-<wxs src="../common/utils.wxs" module="_" />
 <t-picker
-  style="{{_._style([style, customStyle])}}"
-  class="class {{prefix}}-class {{classPrefix}}"
   visible="{{visible}}"
-  value="{{columnsValue}}"
-  bind:pick="onColumnChange"
-  bind:change="onConfirm"
-  bind:cancel="onCancel"
-  bind:visible-change="onVisibleChange"
-  bind:close="onClose"
+  bindchange="onColumnChange"
+  bindconfirm="onConfirm"
+  bindcancel="onCancel"
   header="{{header}}"
   title="{{title}}"
   confirmBtn="{{confirmBtn || locale.confirm}}"
   cancelBtn="{{cancelBtn || locale.cancel}}"
-  popupProps="{{ popupProps }}"
 >
-  <slot slot="header" name="header" />
+  <slot slot="header" name="header"> </slot>
+
   <t-picker-item
     wx:for="{{columns}}"
     wx:key="index"
-    class="{{_.cls(classPrefix + '__item', [['roomly', columns.length > 5 && index == 0]])}}"
     options="{{item}}"
-    index="index"
-  />
+    index="{{index}}"
+    value="{{columnsValue[index]}}"
+  ></t-picker-item>
+
+  <slot slot="footer" name="footer"> </slot>
 </t-picker>

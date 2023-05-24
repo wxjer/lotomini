@@ -5,13 +5,10 @@ const props = {
     externalClasses: {
         type: Array,
     },
-    theme: {
-        type: String,
-        value: 'default',
-    },
     title: {
         type: String,
         value: '',
+        required: true,
     },
 };
 export default props;

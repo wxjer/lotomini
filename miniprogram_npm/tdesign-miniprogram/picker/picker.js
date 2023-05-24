@@ -13,92 +13,50 @@ let Picker = class Picker extends SuperComponent {
     constructor() {
         super(...arguments);
         this.properties = props;
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-confirm`, `${prefix}-class-cancel`, `${prefix}-class-title`];
+        this.externalClasses = ['t-class', 't-class-confirm', 't-class-cancel', 't-class-title'];
         this.options = {
             multipleSlots: true,
         };
         this.relations = {
-            '../picker-item/picker-item': {
+            './picker-item': {
                 type: 'child',
-                linked() {
-                    this.updateChildren();
-                },
-            },
-        };
-        this.observers = {
-            value() {
-                this.updateChildren();
-            },
-            keys(obj) {
-                this.setData({
-                    labelAlias: obj.label || 'label',
-                    valueAlias: obj.value || 'value',
-                });
             },
         };
         this.data = {
-            prefix,
             classPrefix: name,
-            labelAlias: 'label',
-            valueAlias: 'value',
-            defaultPopUpProps: {},
-            defaultPopUpzIndex: 11500,
         };
         this.methods = {
-            updateChildren() {
-                const { value } = this.properties;
-                this.$children.forEach((child, index) => {
-                    var _a;
-                    child.setData({
-                        value: (_a = value === null || value === void 0 ? void 0 : value[index]) !== null && _a !== void 0 ? _a : '',
-                    });
-                    child.update();
-                });
+            getPickerColumns() {
+                const pickerColumns = this.getRelationNodes('./picker-item');
+                if (Array.isArray(pickerColumns)) {
+                    return pickerColumns;
+                }
+                return [];
             },
-            getSelectedValue() {
-                const value = this.$children.map((item) => item._selectedValue);
-                const label = this.$children.map((item) => item._selectedLabel);
-                return [value, label];
-            },
-            getColumnIndexes() {
-                const columns = this.$children.map((pickerColumn, columnIndex) => {
-                    return {
-                        column: columnIndex,
-                        index: pickerColumn._selectedIndex,
-                    };
-                });
-                return columns;
+            getSelectedValues() {
+                const pickerColumns = this.getPickerColumns();
+                if ((pickerColumns === null || pickerColumns === void 0 ? void 0 : pickerColumns.length) === 0) {
+                    return { index: undefined, value: undefined };
+                }
+                return {
+                    index: pickerColumns.map((pickerColumn) => pickerColumn._selectedIndex),
+                    value: pickerColumns.map((pickerColumn) => pickerColumn._selectedValue),
+                };
             },
             onConfirm() {
-                const [value, label] = this.getSelectedValue();
-                const columns = this.getColumnIndexes();
-                this.close('confirm-btn');
-                this.triggerEvent('change', { value, label, columns });
-                this.triggerEvent('confirm', { value, label, columns });
-            },
-            triggerColumnChange({ column, index }) {
-                const [value, label] = this.getSelectedValue();
-                this.triggerEvent('pick', { value, label, column, index });
+                this.triggerEvent('confirm', this.getSelectedValues());
             },
             onCancel() {
-                this.close('cancel-btn');
                 this.triggerEvent('cancel');
             },
-            onPopupChange(e) {
-                const { visible } = e.detail;
-                this.close('overlay');
-                this.triggerEvent('visible-change', { visible });
-            },
-            close(trigger) {
-                if (this.data.autoClose) {
-                    this.setData({ visible: false });
-                }
-                this.triggerEvent('close', { trigger });
+            triggerChange({ column, index, value }) {
+                this.triggerEvent('change', { column, index, value });
             },
         };
     }
     ready() {
-        this.$children.map((column, index) => (column.columnIndex = index));
+        const columns = this.getPickerColumns();
+        columns.map((column, index) => (column.columnIndex = index));
     }
 };
 Picker = __decorate([

@@ -7,8 +7,9 @@ const props = {
         value: 'left',
     },
     closeBtn: {
-        type: null,
-        value: false,
+        type: String,
+        optionalTypes: [Boolean],
+        value: undefined,
     },
     content: {
         type: String,
@@ -21,11 +22,13 @@ const props = {
         type: Array,
     },
     icon: {
-        type: null,
+        type: String,
+        optionalTypes: [Boolean],
         value: true,
     },
     marquee: {
-        type: null,
+        type: Boolean,
+        optionalTypes: [Object],
         value: false,
     },
     offset: {
@@ -39,16 +42,8 @@ const props = {
         type: Boolean,
         value: false,
     },
-    defaultVisible: {
-        type: Boolean,
-        value: false,
-    },
     zIndex: {
         type: Number,
-        value: 15000,
-    },
-    link: {
-        type: null,
     },
 };
 export default props;

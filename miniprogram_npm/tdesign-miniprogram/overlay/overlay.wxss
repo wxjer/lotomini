@@ -31,12 +31,8 @@
   left: 0;
   width: 100%;
   bottom: 0;
-  background-color: var(--td-overlay-bg-color, var(--td-font-gray-2, rgba(0, 0, 0, 0.6)));
-  transition: opacity var(--td-overlay-transition-duration, 300ms) ease;
+  background-color: #fff;
 }
-.t-fade-enter {
-  opacity: 0;
-}
-.t-fade-leave-to {
-  opacity: 0;
+.t-overlay--active {
+  background-color: rgba(0, 0, 0, 0.6);
 }

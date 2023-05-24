@@ -4,37 +4,47 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+import dom from '../behaviors/dom';
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
-import { getRect } from '../common/utils';
 let ARRAY = [];
 const { prefix } = config;
-const name = `${prefix}-swipe-cell`;
-const ContainerClass = `.${name}`;
 let SwiperCell = class SwiperCell extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`];
+        this.behaviors = [dom];
+        this.externalClasses = ['t-class'];
         this.options = {
             multipleSlots: true,
         };
         this.properties = props;
         this.data = {
-            prefix,
             wrapperStyle: '',
             closed: true,
-            classPrefix: name,
+            opened: false,
+            classPrefix: `.${prefix}-swipe-cell`,
         };
     }
     attached() {
         ARRAY.push(this);
-    }
-    ready() {
-        this.setSwipeWidth();
+        wx.nextTick(() => {
+            this.setSwipeWidth();
+        });
     }
     setSwipeWidth() {
-        Promise.all([getRect(this, `${ContainerClass}__left`), getRect(this, `${ContainerClass}__right`)]).then(([leftRect, rightRect]) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            const rightRect = yield this.gettingBoundingClientRect(`${this.data.classPrefix}__right`);
+            const leftRect = yield this.gettingBoundingClientRect(`${this.data.classPrefix}__left`);
             this.setData({
                 leftWidth: leftRect.width,
                 rightWidth: rightRect.width,

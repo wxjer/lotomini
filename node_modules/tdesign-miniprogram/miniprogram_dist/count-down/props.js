@@ -17,7 +17,7 @@ const props = {
     },
     size: {
         type: String,
-        value: 'medium',
+        value: 'small',
     },
     splitWithUnit: {
         type: Boolean,
@@ -29,6 +29,7 @@ const props = {
     },
     time: {
         type: Number,
+        required: true,
     },
 };
 export default props;

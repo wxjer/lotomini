@@ -1,18 +1,11 @@
 const props = {
-    indexList: {
-        type: Array,
+    height: {
+        type: Number,
     },
     list: {
         type: Array,
         value: [],
-    },
-    sticky: {
-        type: Boolean,
-        value: true,
-    },
-    stickyOffset: {
-        type: Number,
-        value: 0,
+        required: true,
     },
 };
 export default props;

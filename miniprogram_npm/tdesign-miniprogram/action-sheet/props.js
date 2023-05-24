@@ -1,8 +1,4 @@
 const props = {
-    align: {
-        type: String,
-        value: 'center',
-    },
     cancelText: {
         type: String,
         value: '取消',
@@ -10,10 +6,6 @@ const props = {
     count: {
         type: Number,
         value: 8,
-    },
-    description: {
-        type: String,
-        value: '',
     },
     items: {
         type: Array,
@@ -33,10 +25,6 @@ const props = {
     defaultVisible: {
         type: Boolean,
         value: false,
-    },
-    popupProps: {
-        type: Object,
-        value: {},
     },
 };
 export default props;

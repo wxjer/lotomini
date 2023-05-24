@@ -4,7 +4,8 @@ const props = {
         value: 'center',
     },
     border: {
-        type: null,
+        type: Boolean,
+        optionalTypes: [Object],
         value: false,
     },
     column: {
@@ -20,10 +21,6 @@ const props = {
     hover: {
         type: Boolean,
         value: false,
-    },
-    theme: {
-        type: String,
-        value: 'default',
     },
 };
 export default props;

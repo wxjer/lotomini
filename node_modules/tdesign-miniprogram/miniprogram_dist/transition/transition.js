@@ -1,25 +1,149 @@
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-import { SuperComponent, wxComponent } from '../common/src/index';
-import transition from '../mixins/transition';
+import TComponent from '../common/component';
 import config from '../common/config';
+import { classNames } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-transition`;
-let Transition = class Transition extends SuperComponent {
-    constructor() {
-        super(...arguments);
-        this.externalClasses = [`${prefix}-class`];
-        this.behaviors = [transition()];
-        this.data = {
-            classPrefix: name,
-        };
-    }
-};
-Transition = __decorate([
-    wxComponent()
-], Transition);
-export default Transition;
+TComponent({
+    options: {
+        styleIsolation: 'shared',
+    },
+    properties: {
+        visible: {
+            type: Boolean,
+            observer(current, prev) {
+                if (this.inited && current !== prev) {
+                    if (current) {
+                        this.enter();
+                    }
+                    else {
+                        this.leave();
+                    }
+                }
+            },
+        },
+        destroyOnHide: Boolean,
+        appear: Boolean,
+        customClass: String,
+        name: {
+            type: String,
+            value: name,
+        },
+        durations: {
+            type: Number,
+            optionalTypes: [Array],
+        },
+    },
+    data: {
+        dataVisible: false,
+        transitionClass: '',
+        transitionDurations: 300,
+        className: '',
+    },
+    lifetimes: {
+        created() {
+            this.status = '';
+            this.transitionT = 0;
+        },
+        attached() {
+            this.setClass();
+            this.durations = this.getDurations();
+            if (this.data.appear && this.data.visible) {
+                this.enter();
+            }
+            else if (this.data.visible) {
+                this.setData({
+                    dataVisible: true,
+                });
+            }
+            this.inited = true;
+        },
+        detached() {
+            clearTimeout(this.transitionT);
+        },
+    },
+    observers: {
+        'customClass, transitionClass'() {
+            this.setClass();
+        },
+    },
+    methods: {
+        setClass() {
+            const { customClass, transitionClass } = this.data;
+            const className = classNames(customClass, transitionClass);
+            this.setData({
+                className,
+            });
+        },
+        getDurations() {
+            const { durations } = this.data;
+            if (Array.isArray(durations)) {
+                return durations.map((item) => Number(item));
+            }
+            return [Number(durations), Number(durations)];
+        },
+        enter() {
+            const { name } = this.data;
+            const [duration] = this.durations;
+            this.status = 'entering';
+            this.setData({
+                transitionClass: `${name}-enter ${name}-enter-active`,
+                dataVisible: true,
+            });
+            setTimeout(() => {
+                this.setData({
+                    transitionClass: `${name}-enter  ${name}-enter-active ${name}-enter-to`,
+                });
+            }, 30);
+            if (typeof duration === 'number' && duration > 0) {
+                this.transitionT = setTimeout(this.entered.bind(this), duration + 30);
+            }
+        },
+        entered() {
+            this.customDuration = false;
+            clearTimeout(this.transitionT);
+            this.status = 'entered';
+            this.setData({
+                transitionClass: '',
+            });
+        },
+        leave() {
+            const { name } = this.data;
+            const [, duration] = this.durations;
+            this.status = 'leaving';
+            this.setData({
+                transitionClass: `${name}-leave  ${name}-leave-active`,
+            });
+            clearTimeout(this.transitionT);
+            setTimeout(() => {
+                this.setData({
+                    transitionClass: [`${name}-leave ${name}-leave-active ${name}-leave-to`],
+                });
+            }, 30);
+            if (typeof duration === 'number' && duration > 0) {
+                this.customDuration = true;
+                this.transitionT = setTimeout(this.leaved.bind(this), duration + 30);
+            }
+        },
+        leaved() {
+            this.customDuration = false;
+            clearTimeout(this.transitionT);
+            this.status = 'leaved';
+            this.setData({
+                transitionClass: '',
+                dataVisible: false,
+            });
+        },
+        onTransitionEnd() {
+            if (this.customDuration) {
+                return;
+            }
+            clearTimeout(this.transitionT);
+            if (this.status === 'entering' && this.data.visible) {
+                this.entered();
+            }
+            else if (this.status === 'leaving' && !this.data.visible) {
+                this.leaved();
+            }
+        },
+    },
+});

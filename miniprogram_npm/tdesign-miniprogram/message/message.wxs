@@ -1,24 +1,16 @@
-var isEmptyObj = function (obj) {
-  return JSON.stringify(obj) === '{}';
-};
-
 var changeNumToStr = function (arr) {
   return arr.map(function (item) {
     return typeof item === 'number' ? item + 'rpx' : item;
   });
 };
 
-var getMessageStyles = function (zIndex, offset, wrapTop) {
-  var arr = changeNumToStr(offset);
+var getMessageStylesOffset = function (props) {
+  var arr = changeNumToStr(props.offset);
   var styleOffset = '';
-  styleOffset += 'top:' + changeNumToStr([wrapTop * 2]) + ';';
+  styleOffset += 'top:' + arr[0] + ';';
   styleOffset += 'right:' + arr[1] + ';';
   styleOffset += 'left:' + arr[1] + ';';
-  var zIndexStyle = zIndex ? 'z-index:' + zIndex + ';' : '';
-  return zIndexStyle + styleOffset;
+  return styleOffset;
 };
 
-module.exports = {
-  getMessageStyles: getMessageStyles,
-  isEmptyObj: isEmptyObj,
-};
+module.exports.getMessageStylesOffset = getMessageStylesOffset;

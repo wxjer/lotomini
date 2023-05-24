@@ -17,8 +17,6 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import { trimSingleValue, trimValue } from './tool';
 import props from './props';
-import { getRect } from '../common/utils';
-import Bus from '../common/bus';
 const { prefix } = config;
 const name = `${prefix}-slider`;
 let Slider = class Slider extends SuperComponent {
@@ -55,57 +53,36 @@ let Slider = class Slider extends SuperComponent {
             scaleArray: [],
             scaleTextArray: [],
             prefix,
-            isVisibleToScreenReader: false,
         };
         this.observers = {
-            value(newValue) {
+            'value, min, max'(newValue) {
                 this.handlePropsChange(newValue);
             },
             _value(newValue) {
                 const { min, max, range } = this.properties;
-                const { maxRange } = this.data;
+                const { maxRange, blockSize } = this.data;
+                const fullLineWidth = maxRange + Number(blockSize);
                 if (range) {
-                    const left = (maxRange * (newValue[0] - Number(min))) / (Number(max) - Number(min));
-                    const right = (maxRange * (Number(max) - newValue[1])) / (Number(max) - Number(min));
-                    this.setLineStyle(left, right);
+                    const left = (fullLineWidth * (newValue[0] - Number(min))) / (Number(max) - Number(min));
+                    const right = (fullLineWidth * (Number(max) - newValue[1])) / (Number(max) - Number(min));
+                    this.setDotStyle(left, right);
                 }
                 else {
-                    this.setSingleBarWidth(newValue);
+                    const left = (fullLineWidth * (Number(newValue) - Number(min))) / (Number(max) - Number(min));
+                    this.setDotStyle(left, null);
+                    this.getSingleBarWidth(newValue);
                 }
-                this.setData({
-                    isVisibleToScreenReader: true,
-                });
-                setTimeout(() => {
-                    this.setData({
-                        isVisibleToScreenReader: false,
-                    });
-                }, 2e3);
-            },
-            marks(val) {
-                if (this.data.initialLeft != null) {
-                    this.handleMask(val);
-                }
-                else {
-                    this.bus.on('initial', () => this.handleMask(val));
-                }
-            },
-        };
-        this.lifetimes = {
-            created() {
-                this.bus = new Bus();
-            },
-            attached() {
-                const { value } = this.properties;
-                if (!value)
-                    this.handlePropsChange(0);
-                this.getInitialStyle();
             },
         };
     }
+    attached() {
+        const { marks, value } = this.properties;
+        if (!value)
+            this.handlePropsChange(0);
+        this.handleMask(marks);
+        this.getInitialStyle();
+    }
     triggerValue(value) {
-        if (this.preval === value)
-            return;
-        this.preval = value;
         this._trigger('change', {
             value: trimValue(value, this.properties),
         });
@@ -124,140 +101,159 @@ let Slider = class Slider extends SuperComponent {
         setValueAndTrigger();
     }
     handleMask(marks) {
-        const calcPos = (arr) => {
-            const { theme } = this.properties;
-            const { blockSize, maxRange } = this.data;
-            const margin = theme === 'capsule' ? blockSize / 2 : 0;
-            return arr.map((item) => ({
-                val: item,
-                left: Math.round((item / 100) * maxRange) + margin,
-            }));
-        };
         if ((marks === null || marks === void 0 ? void 0 : marks.length) && Array.isArray(marks)) {
             this.setData({
                 isScale: true,
-                scaleArray: calcPos(marks),
-                scaleTextArray: [],
+                scaleArray: marks,
             });
         }
         if (Object.prototype.toString.call(marks) === '[object Object]') {
             const scaleArray = Object.keys(marks).map((item) => Number(item));
             const scaleTextArray = scaleArray.map((item) => marks[item]);
-            this.setData({
-                isScale: scaleArray.length > 0,
-                scaleArray: calcPos(scaleArray),
-                scaleTextArray,
-            });
+            if (scaleArray.length) {
+                this.setData({
+                    isScale: true,
+                    scaleArray,
+                    scaleTextArray,
+                });
+            }
         }
     }
-    setSingleBarWidth(value) {
-        const { max, min, theme } = this.properties;
-        const { maxRange, blockSize } = this.data;
-        const halfBlock = theme === 'capsule' ? Number(blockSize) / 2 : 0;
-        const percentage = (Number(value) - Number(min)) / (Number(max) - Number(min));
-        const width = percentage * maxRange + halfBlock;
+    getSingleBarWidth(value) {
+        const { max, min } = this.properties;
+        const width = `${((Number(value) - Number(min)) * 100) / (Number(max) - Number(min))}%`;
         this.setData({
-            lineBarWidth: `${width}px`,
+            lineBarWidth: width,
+        });
+    }
+    getSelectorQuery(id) {
+        return new Promise((resolve, reject) => {
+            this.createSelectorQuery()
+                .select(`#${id}`)
+                .boundingClientRect((rect) => {
+                if (rect) {
+                    resolve(rect);
+                }
+                else {
+                    reject(rect);
+                }
+            })
+                .exec();
         });
     }
     getInitialStyle() {
         return __awaiter(this, void 0, void 0, function* () {
-            const line = yield getRect(this, '#sliderLine');
+            const line = yield this.getSelectorQuery('sliderLine');
             const { blockSize } = this.data;
-            const { theme } = this.properties;
             const halfBlock = Number(blockSize) / 2;
-            let maxRange = line.right - line.left;
-            let initialLeft = line.left;
-            let initialRight = line.right;
-            if (theme === 'capsule') {
-                maxRange = maxRange - Number(blockSize) - 6;
-                initialLeft -= halfBlock;
-                initialRight -= halfBlock;
-            }
             this.setData({
-                maxRange,
-                initialLeft,
-                initialRight,
+                maxRange: line.right - line.left - Number(blockSize),
+                initialLeft: line.left - halfBlock,
+                initialRight: line.right + halfBlock,
             });
-            this.bus.emit('initial');
         });
+    }
+    setDotStyle(left, right) {
+        const { range } = this.properties;
+        const { blockSize } = this.data;
+        const halfBlock = Number(blockSize) / 2;
+        if (left !== null) {
+            this.setData({
+                activeLeft: left - halfBlock,
+            });
+        }
+        if (right !== null) {
+            this.setData({
+                activeRight: right - halfBlock,
+            });
+        }
+        if (range) {
+            this.setLineStyle();
+            const [a, b] = this.data._value;
+            this.setData({
+                dotTopValue: [a, b],
+            });
+        }
     }
     stepValue(value) {
         const { step, min, max } = this.properties;
-        const decimal = String(step).indexOf('.') > -1 ? String(step).length - String(step).indexOf('.') - 1 : 0;
-        const closestStep = trimSingleValue(Number((Math.round(value / Number(step)) * Number(step)).toFixed(decimal)), Number(min), Number(max));
+        if (Number(step) < 1 || Number(step) > Number(max) - Number(min))
+            return value;
+        const closestStep = trimSingleValue(Math.round(value / Number(step)) * Number(step), Number(min), Number(max));
         return closestStep;
     }
     onSingleLineTap(e) {
-        const { disabled } = this.properties;
-        if (disabled)
-            return;
         const value = this.getSingleChangeValue(e);
         this.triggerValue(value);
     }
     getSingleChangeValue(e) {
-        const { min, max } = this.properties;
-        const { initialLeft, maxRange } = this.data;
+        const { disabled, min, max } = this.properties;
+        const { initialLeft, maxRange, blockSize } = this.data;
+        if (disabled)
+            return;
         const [touch] = e.changedTouches;
         const { pageX } = touch;
-        const currentLeft = pageX - initialLeft;
+        const halfBlock = Number(blockSize) / 2;
+        const currentLeft = pageX - initialLeft - halfBlock;
         let value = 0;
         if (currentLeft <= 0) {
             value = Number(min);
         }
-        else if (currentLeft >= maxRange) {
+        else if (currentLeft >= maxRange + Number(blockSize)) {
             value = Number(max);
         }
         else {
-            value = (currentLeft / maxRange) * (Number(max) - Number(min)) + Number(min);
+            value = Math.round((currentLeft / (maxRange + Number(blockSize))) * (Number(max) - Number(min)) + Number(min));
         }
         return this.stepValue(value);
     }
     convertPosToValue(posValue, dir) {
-        const { maxRange } = this.data;
+        const { maxRange, blockSize } = this.data;
         const { max, min } = this.properties;
+        const fullLineWidth = maxRange + blockSize;
         return dir === 0
-            ? (posValue / maxRange) * (Number(max) - Number(min)) + Number(min)
-            : Number(max) - (posValue / maxRange) * (Number(max) - Number(min));
+            ? (posValue / fullLineWidth) * (Number(max) - Number(min)) + Number(min)
+            : Number(max) - (posValue / fullLineWidth) * (Number(max) - Number(min));
     }
     onLineTap(e) {
-        const { disabled, theme } = this.properties;
+        const { disabled } = this.properties;
         const { initialLeft, initialRight, maxRange, blockSize } = this.data;
         if (disabled)
             return;
         const [touch] = e.changedTouches;
         const { pageX } = touch;
-        const halfBlock = theme === 'capsule' ? Number(blockSize) / 2 : 0;
-        const currentLeft = pageX - initialLeft;
+        const halfBlock = Number(blockSize) / 2;
+        const currentLeft = pageX - initialLeft - halfBlock;
         if (currentLeft < 0 || currentLeft > maxRange + Number(blockSize))
             return;
-        Promise.all([getRect(this, '#leftDot'), getRect(this, '#rightDot')]).then(([leftDot, rightDot]) => {
-            const distanceLeft = Math.abs(pageX - leftDot.left - halfBlock);
-            const distanceRight = Math.abs(rightDot.left - pageX + halfBlock);
-            const isMoveLeft = distanceLeft < distanceRight;
-            if (isMoveLeft) {
-                const left = pageX - initialLeft;
-                const leftValue = this.convertPosToValue(left, 0);
-                this.triggerValue([this.stepValue(leftValue), this.data._value[1]]);
-            }
-            else {
-                const right = -(pageX - initialRight);
-                const rightValue = this.convertPosToValue(right, 1);
-                this.triggerValue([this.data._value[0], this.stepValue(rightValue)]);
-            }
+        this.getSelectorQuery('leftDot').then((leftDot) => {
+            this.getSelectorQuery('rightDot').then((rightDot) => {
+                const distanceLeft = Math.abs(pageX - leftDot.left - halfBlock);
+                const distanceRight = Math.abs(rightDot.left - pageX + halfBlock);
+                const isMoveLeft = distanceLeft < distanceRight;
+                if (isMoveLeft) {
+                    const left = pageX - initialLeft - halfBlock;
+                    const leftValue = this.convertPosToValue(left, 0);
+                    this.triggerValue([this.stepValue(leftValue), this.data._value[1]]);
+                }
+                else {
+                    const right = -(pageX - initialRight) - halfBlock;
+                    const rightValue = this.convertPosToValue(right, 1);
+                    const newValue = trimValue([this.data._value[0], this.stepValue(rightValue)], this.properties);
+                    this.triggerValue(newValue);
+                }
+            });
         });
-    }
-    onTouchStart(e) {
-        this.triggerEvent('dragstart', { e });
     }
     onTouchMoveLeft(e) {
         const { disabled } = this.properties;
-        const { initialLeft, _value } = this.data;
+        const { initialLeft, blockSize, _value } = this.data;
         if (disabled)
             return;
         const [touch] = e.changedTouches;
         const { pageX } = touch;
-        const currentLeft = pageX - initialLeft;
+        const halfBlock = Number(blockSize) / 2;
+        const currentLeft = pageX - initialLeft - halfBlock;
         const newData = [..._value];
         const leftValue = this.convertPosToValue(currentLeft, 0);
         newData[0] = this.stepValue(leftValue);
@@ -265,41 +261,33 @@ let Slider = class Slider extends SuperComponent {
     }
     onTouchMoveRight(e) {
         const { disabled } = this.properties;
-        const { initialRight, _value } = this.data;
+        const { initialRight, blockSize, _value } = this.data;
         if (disabled)
             return;
         const [touch] = e.changedTouches;
         const { pageX } = touch;
-        const currentRight = -(pageX - initialRight);
+        const halfBlock = Number(blockSize) / 2;
+        const currentRight = -(pageX - initialRight) - halfBlock;
         const newData = [..._value];
         const rightValue = this.convertPosToValue(currentRight, 1);
         newData[1] = this.stepValue(rightValue);
         this.triggerValue(newData);
     }
-    setLineStyle(left, right) {
-        const { theme } = this.properties;
-        const { blockSize, maxRange } = this.data;
-        const halfBlock = theme === 'capsule' ? Number(blockSize) / 2 : 0;
-        const [a, b] = this.data._value;
-        const cut = (v) => parseInt(v, 10);
-        this.setData({
-            dotTopValue: [a, b],
-        });
-        if (left + right <= maxRange) {
+    setLineStyle() {
+        const { activeLeft, activeRight, maxRange, blockSize } = this.data;
+        const halfBlock = Number(blockSize) / 2;
+        if (activeLeft + activeRight <= maxRange) {
             this.setData({
-                lineLeft: cut(left + halfBlock),
-                lineRight: cut(right + halfBlock),
+                lineLeft: activeLeft + halfBlock,
+                lineRight: activeRight + halfBlock,
             });
         }
         else {
             this.setData({
-                lineLeft: cut(maxRange + halfBlock - right),
-                lineRight: cut(maxRange - left + halfBlock * 1.5),
+                lineLeft: maxRange + halfBlock - activeRight,
+                lineRight: maxRange - activeLeft + halfBlock * 1.5,
             });
         }
-    }
-    onTouchEnd(e) {
-        this.triggerEvent('dragend', { e });
     }
 };
 Slider = __decorate([

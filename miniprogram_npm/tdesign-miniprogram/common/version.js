@@ -35,6 +35,3 @@ export function canIUseFormFieldButton() {
     const version = '2.10.3';
     return judgeByVersion(version);
 }
-export function canUseVirtualHost() {
-    return judgeByVersion('2.19.2');
-}

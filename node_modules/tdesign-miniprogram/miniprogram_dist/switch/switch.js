@@ -16,9 +16,9 @@ let Switch = class Switch extends SuperComponent {
         this.behaviors = ['wx://form-field'];
         this.properties = props;
         this.data = {
-            prefix,
             classPrefix: name,
-            checked: false,
+            isActive: false,
+            bodyStyle: '',
         };
         this.controlledProps = [
             {
@@ -30,12 +30,13 @@ let Switch = class Switch extends SuperComponent {
             value(val) {
                 const [activeValue] = this.data.customValue;
                 this.setData({
-                    checked: val === activeValue,
+                    isActive: val === activeValue,
                 });
+                this.handleColorChange();
             },
         };
         this.methods = {
-            handleSwitch() {
+            switchChange() {
                 const { disabled, value, customValue } = this.data;
                 const [activeValue, inactiveValue] = customValue;
                 if (disabled)
@@ -43,6 +44,21 @@ let Switch = class Switch extends SuperComponent {
                 this._trigger('change', {
                     value: value === activeValue ? inactiveValue : activeValue,
                 });
+            },
+            handleColorChange() {
+                const { disabled, colors = [] } = this.data;
+                const [activedColor = '#0052d9', inactivedColor = 'rgba(0, 0, 0, .26)'] = colors;
+                if (!disabled) {
+                    this.setData({
+                        bodyStyle: `background-color: ${this.data.isActive ? activedColor : inactivedColor}`,
+                    });
+                }
+            },
+            onTapBackground() {
+                this.switchChange();
+            },
+            onTapDot() {
+                this.switchChange();
             },
         };
     }

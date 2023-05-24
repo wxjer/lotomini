@@ -13,9 +13,6 @@ let Drawer = class Drawer extends SuperComponent {
     constructor() {
         super(...arguments);
         this.externalClasses = [];
-        this.options = {
-            multipleSlots: true,
-        };
         this.properties = props;
         this.data = {
             classPrefix: name,
@@ -25,11 +22,8 @@ let Drawer = class Drawer extends SuperComponent {
                 const { visible } = detail;
                 const { showOverlay } = this.data;
                 this.setData({
-                    visible,
+                    visible: visible,
                 });
-                if (!visible) {
-                    this.triggerEvent('close', { trigger: 'overlay' });
-                }
                 if (showOverlay) {
                     this.triggerEvent('overlay-click', { visible: visible });
                 }

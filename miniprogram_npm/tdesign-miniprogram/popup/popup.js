@@ -7,36 +7,64 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
-import transition from '../mixins/transition';
-delete props.visible;
+import { classNames } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-popup`;
+const defaultTransitionProps = {
+    name: `${name}--transition`,
+    durations: [300, 300],
+    appear: false,
+};
 let Popup = class Popup extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-content`];
-        this.behaviors = [transition()];
+        this.externalClasses = ['t-class', 't-class-overlay', 't-class-content'];
         this.options = {
             multipleSlots: true,
+            styleIsolation: 'shared',
         };
         this.properties = props;
         this.data = {
             prefix,
             classPrefix: name,
+            className: name,
+            dataTransitionProps: Object.assign({}, defaultTransitionProps),
         };
-        this.methods = {
-            onStopPropagation() { },
-            handleOverlayClick() {
-                const { closeOnOverlayClick } = this.properties;
-                if (closeOnOverlayClick) {
-                    this.triggerEvent('visible-change', { visible: false });
-                }
-            },
-            handleClose() {
-                this.triggerEvent('visible-change', { visible: false });
+        this.lifetimes = {
+            attached() {
+                this.setClass();
+                this.setTransitionProps();
             },
         };
     }
+    setClass() {
+        const { placement, showOverlay } = this.properties;
+        const className = classNames(name, 't-class', `${name}--position-${placement}`, {
+            [`${name}--overlay-transparent`]: !showOverlay,
+        });
+        this.setData({
+            className,
+        });
+    }
+    setTransitionProps() {
+        if (!this.properties.transitionProps) {
+            return;
+        }
+        const transitionProps = Object.assign(Object.assign({}, defaultTransitionProps), this.properties.transitionProps);
+        this.setData({
+            dataTransitionProps: transitionProps,
+        });
+    }
+    onOverlayClick() {
+        const { closeOnOverlayClick } = this.properties;
+        if (closeOnOverlayClick) {
+            this.triggerEvent('visible-change', { visible: false });
+        }
+    }
+    onCloseClick() {
+        this.triggerEvent('visible-change', { visible: false });
+    }
+    preventEvent() { }
 };
 Popup = __decorate([
     wxComponent()

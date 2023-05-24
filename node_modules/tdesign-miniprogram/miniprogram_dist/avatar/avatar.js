@@ -7,7 +7,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import avatarProps from './props';
-import { setIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-avatar`;
 let Avatar = class Avatar extends SuperComponent {
@@ -15,7 +14,6 @@ let Avatar = class Avatar extends SuperComponent {
         super(...arguments);
         this.options = {
             multipleSlots: true,
-            styleIsolation: 'apply-shared',
         };
         this.externalClasses = [
             `${prefix}-class`,
@@ -30,45 +28,44 @@ let Avatar = class Avatar extends SuperComponent {
             classPrefix: name,
             isShow: true,
             zIndex: 0,
-            borderedWithGroup: false,
+            isChild: false,
         };
         this.relations = {
-            '../avatar-group/avatar-group': {
+            './avatar-group': {
                 type: 'ancestor',
-                linked(parent) {
-                    var _a;
-                    this.parent = parent;
-                    this.setData({
-                        size: (_a = this.data.size) !== null && _a !== void 0 ? _a : parent.data.size,
-                        borderedWithGroup: true,
-                    });
+                linked(target) {
+                    this.parent = target;
                 },
             },
         };
-        this.observers = {
-            icon(icon) {
-                const obj = setIcon('icon', icon, '');
-                this.setData(Object.assign({}, obj));
-            },
-        };
         this.methods = {
-            hide() {
+            updateIsChild(isChild) {
+                this.setData({
+                    isChild,
+                });
+            },
+            updateShow() {
                 this.setData({
                     isShow: false,
                 });
             },
+            updateSize(size) {
+                if (this.properties.size)
+                    return;
+                this.setData({ size });
+            },
             updateCascading(zIndex) {
                 this.setData({ zIndex });
             },
-            onLoadError(e) {
-                if (this.properties.hideOnLoadFailed) {
-                    this.setData({
-                        isShow: false,
-                    });
-                }
-                this.triggerEvent('error', e.detail);
-            },
         };
+    }
+    onLoadError(e) {
+        if (this.properties.hideOnLoadFailed) {
+            this.setData({
+                isShow: false,
+            });
+        }
+        this.triggerEvent('error', e.detail);
     }
 };
 Avatar = __decorate([

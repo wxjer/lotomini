@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { styles, calcIcon } from '../common/utils';
+import { styles } from '../common/utils';
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
@@ -21,9 +21,7 @@ let ImageViewer = class ImageViewer extends SuperComponent {
             currentSwiperIndex: 0,
             windowHeight: 0,
             windowWidth: 0,
-            swiperStyle: {},
-            imagesStyle: {},
-            maskTop: 0,
+            imagesShape: {},
         };
         this.options = {
             multipleSlots: true,
@@ -40,29 +38,8 @@ let ImageViewer = class ImageViewer extends SuperComponent {
                     currentSwiperIndex: value ? this.properties.initialIndex : 0,
                 });
             },
-            closeBtn(v) {
-                this.setData({
-                    _closeBtn: calcIcon(v, 'close'),
-                });
-            },
-            deleteBtn(v) {
-                this.setData({
-                    _deleteBtn: calcIcon(v, 'delete'),
-                });
-            },
         };
         this.methods = {
-            calcMaskTop() {
-                if (this.data.usingCustomNavbar) {
-                    const rect = (wx === null || wx === void 0 ? void 0 : wx.getMenuButtonBoundingClientRect()) || null;
-                    const { statusBarHeight } = wx.getSystemInfoSync();
-                    if (rect && statusBarHeight) {
-                        this.setData({
-                            maskTop: rect.top - statusBarHeight + rect.bottom,
-                        });
-                    }
-                }
-            },
             saveScreenSize() {
                 const { windowHeight, windowWidth } = wx.getSystemInfoSync();
                 this.setData({
@@ -72,44 +49,51 @@ let ImageViewer = class ImageViewer extends SuperComponent {
             },
             calcImageDisplayStyle(imageWidth, imageHeight) {
                 const { windowWidth, windowHeight } = this.data;
-                const ratio = imageWidth / imageHeight;
                 if (imageWidth < windowWidth && imageHeight < windowHeight) {
                     return {
+                        mode: 'scaleToFill',
                         styleObj: {
-                            width: `${imageWidth * 2}rpx`,
+                            width: '100%',
                             height: `${imageHeight * 2}rpx`,
+                        },
+                    };
+                }
+                if (imageWidth >= windowWidth && imageHeight >= windowHeight) {
+                    return {
+                        mode: 'aspectFit',
+                        styleObj: {
+                            width: '100%',
+                            height: `${(imageHeight / (imageWidth / windowWidth)) * 2}rpx`,
+                        },
+                    };
+                }
+                if (imageWidth < windowWidth && imageHeight >= windowHeight) {
+                    return {
+                        mode: 'widthFix',
+                        styleObj: {
+                            width: `${(imageWidth / (imageHeight / windowHeight)) * 2}rpx`,
+                            height: '100vh',
                             left: '50%',
                             transform: 'translate(-50%, -50%)',
                         },
                     };
                 }
-                if (ratio >= 1) {
+                if (imageWidth >= windowWidth && imageHeight < windowHeight) {
                     return {
+                        mode: 'heightFix',
                         styleObj: {
-                            width: '100vw',
-                            height: `${(windowWidth / ratio) * 2}rpx`,
+                            width: '100%',
+                            height: `${(imageHeight / (imageWidth / windowWidth)) * 2}rpx`,
                         },
                     };
                 }
-                return {
-                    styleObj: {
-                        width: `${ratio * windowHeight * 2}rpx`,
-                        height: '100vh',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                    },
-                };
             },
             onImageLoadSuccess(e) {
                 const { detail: { width, height }, currentTarget: { dataset: { index }, }, } = e;
                 const { mode, styleObj } = this.calcImageDisplayStyle(width, height);
-                const originImagesStyle = this.data.imagesStyle;
-                const originSwiperStyle = this.data.swiperStyle;
+                const origin = this.data.imagesShape;
                 this.setData({
-                    swiperStyle: Object.assign(Object.assign({}, originSwiperStyle), { [index]: {
-                            style: `height: ${styleObj.height}`,
-                        } }),
-                    imagesStyle: Object.assign(Object.assign({}, originImagesStyle), { [index]: {
+                    imagesShape: Object.assign(Object.assign({}, origin), { [index]: {
                             mode,
                             style: styles(Object.assign({}, styleObj)),
                         } }),
@@ -123,8 +107,8 @@ let ImageViewer = class ImageViewer extends SuperComponent {
                 this._trigger('change', { index: current });
             },
             onClose(e) {
-                const { source } = e.currentTarget.dataset;
-                this._trigger('close', { visible: false, trigger: source || 'button', index: this.data.currentSwiperIndex });
+                const { target: { dataset: { source }, }, } = e;
+                this._trigger('close', { visible: false, trigger: source, index: this.data.currentSwiperIndex });
             },
             onDelete() {
                 this._trigger('delete', { index: this.data.currentSwiperIndex });
@@ -133,7 +117,6 @@ let ImageViewer = class ImageViewer extends SuperComponent {
     }
     ready() {
         this.saveScreenSize();
-        this.calcMaskTop();
     }
 };
 ImageViewer = __decorate([

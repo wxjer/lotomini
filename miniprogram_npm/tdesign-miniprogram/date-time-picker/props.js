@@ -7,52 +7,46 @@ const props = {
         type: String,
         value: '',
     },
-    end: {
-        type: null,
+    disableDate: {
+        type: Object,
+        optionalTypes: [Array, null],
     },
     externalClasses: {
         type: Array,
     },
     format: {
         type: String,
-        value: 'YYYY-MM-DD HH:mm:ss',
+        value: 'YYYY-MM-DD',
     },
     header: {
         type: Boolean,
         value: true,
     },
     mode: {
-        type: null,
-        value: 'date',
+        type: String,
+        optionalTypes: [Array],
+        value: ['year', 'month', 'date'],
     },
     showWeek: {
         type: Boolean,
         value: false,
-    },
-    start: {
-        type: null,
-    },
-    steps: {
-        type: Object,
     },
     title: {
         type: String,
         value: '',
     },
     value: {
-        type: null,
+        type: String,
+        optionalTypes: [Number],
         value: null,
     },
     defaultValue: {
-        type: null,
+        type: String,
+        optionalTypes: [Number],
     },
     visible: {
         type: Boolean,
         value: false,
-    },
-    popupProps: {
-        type: Object,
-        value: {},
     },
 };
 export default props;

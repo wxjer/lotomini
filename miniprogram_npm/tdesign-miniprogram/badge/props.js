@@ -8,7 +8,8 @@ const props = {
         value: '',
     },
     count: {
-        type: null,
+        type: String,
+        optionalTypes: [Number],
         value: 0,
     },
     dot: {

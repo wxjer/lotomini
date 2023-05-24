@@ -18,16 +18,12 @@ const props = {
         type: Boolean,
         value: true,
     },
-    title: {
-        type: String,
-    },
     visible: {
         type: Boolean,
         value: false,
     },
     zIndex: {
         type: Number,
-        value: 11500,
     },
 };
 export default props;

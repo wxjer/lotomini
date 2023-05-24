@@ -14,53 +14,55 @@ let Grid = class Grid extends SuperComponent {
         super(...arguments);
         this.externalClasses = ['t-class'];
         this.relations = {
-            '../grid-item/grid-item': {
+            './grid-item': {
                 type: 'descendant',
             },
         };
         this.properties = props;
         this.data = {
-            prefix,
             classPrefix: name,
             contentStyle: '',
         };
         this.observers = {
-            'column,hover,align'() {
+            'border,gutter,column,hover,align'() {
                 this.updateContentStyle();
-            },
-            'gutter,border'() {
-                this.updateContentStyle();
-                this.doForChild((child) => child.updateStyle());
             },
         };
         this.lifetimes = {
             attached() {
                 this.updateContentStyle();
             },
-        };
-        this.methods = {
-            doForChild(action) {
-                this.$children.forEach(action);
+            detached() {
+                this.destroyed();
             },
-            updateContentStyle() {
-                const contentStyles = [];
-                const marginStyle = this.getContentMargin();
-                marginStyle && contentStyles.push(marginStyle);
-                this.setData({
-                    contentStyle: contentStyles.join(';'),
-                });
-            },
-            getContentMargin() {
-                const { gutter } = this.properties;
-                let { border } = this.properties;
-                if (!border)
-                    return `margin-left:-${gutter}rpx; margin-top:-${gutter}rpx`;
-                if (!isObject(border))
-                    border = {};
-                const { width = 2 } = border;
-                return `margin-left:-${width}rpx; margin-top:-${width}rpx`;
+            created() {
+                this.children = [];
             },
         };
+    }
+    updateContentStyle() {
+        const contentStyles = [];
+        const marginStyle = this.getContentMargin();
+        marginStyle && contentStyles.push(marginStyle);
+        this.setData({
+            contentStyle: contentStyles.join(';'),
+        });
+    }
+    getContentMargin() {
+        const { gutter = 0 } = this.properties;
+        let { border } = this.properties;
+        if (!border)
+            return `margin-left:-${gutter}rpx; margin-top:-${gutter}rpx`;
+        if (!isObject(border))
+            border = {};
+        const { width = 2 } = border;
+        return `margin-left:-${width}rpx; margin-top:-${width}rpx`;
+    }
+    destroyed() {
+        if (this.updateTimer) {
+            clearTimeout(this.updateTimer);
+            this.updateTimer = null;
+        }
     }
 };
 Grid = __decorate([

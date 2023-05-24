@@ -11,10 +11,12 @@ const props = {
         type: Array,
     },
     icon: {
-        type: null,
+        type: String,
+        value: '',
     },
     maxWidth: {
-        type: null,
+        type: String,
+        optionalTypes: [Number],
     },
     shape: {
         type: String,

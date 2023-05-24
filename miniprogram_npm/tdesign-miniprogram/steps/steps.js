@@ -13,17 +13,19 @@ let Steps = class Steps extends SuperComponent {
     constructor() {
         super(...arguments);
         this.relations = {
-            '../step-item/step-item': {
-                type: 'child',
+            './step-item': {
+                type: 'descendant',
                 linked(child) {
                     this.updateChildren();
-                    const { readonly } = this.data;
+                    const { readonly, layout } = this.data;
+                    let isLarge = false;
+                    if (!readonly && layout === 'horizontal' && child.data.icon !== 'slot') {
+                        isLarge = !!child.data.icon;
+                    }
                     child.setData({
                         readonly,
+                        isLarge,
                     });
-                },
-                unlinked() {
-                    this.updateLastChid();
                 },
             },
         };
@@ -46,16 +48,19 @@ let Steps = class Steps extends SuperComponent {
         };
         this.methods = {
             updateChildren() {
-                const items = this.$children;
-                items.forEach((item, index) => {
-                    item.updateStatus(Object.assign({ index, items }, this.data));
-                });
-            },
-            updateLastChid() {
-                const items = this.$children;
-                items.forEach((child, index) => child.setData({ isLastChild: index === items.length - 1 }));
+                const items = this.getRelationNodes('./step-item');
+                const len = items.length;
+                const { current, currentStatus, readonly } = this.data;
+                if (len) {
+                    items.forEach((item, index) => {
+                        item.updateStatus(current, currentStatus, index, this.data.theme, this.data.layout, items, readonly);
+                    });
+                }
             },
             handleClick(index) {
+                if (this.data.layout === 'vertical') {
+                    return;
+                }
                 if (!this.data.readonly) {
                     const preIndex = this.data.current;
                     this._trigger('change', {

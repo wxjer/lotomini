@@ -3,16 +3,12 @@ const props = {
         type: String,
         value: 'left',
     },
-    layout: {
-        type: String,
-        value: 'horizontal',
-    },
     borderless: {
         type: Boolean,
         value: false,
     },
     clearable: {
-        type: null,
+        type: Boolean,
         value: false,
     },
     disabled: {
@@ -37,15 +33,13 @@ const props = {
     },
     maxlength: {
         type: Number,
-        value: -1,
     },
     placeholder: {
         type: String,
         value: undefined,
     },
     prefixIcon: {
-        type: null,
-        value: null,
+        type: String,
     },
     readonly: {
         type: Boolean,
@@ -53,7 +47,7 @@ const props = {
     },
     size: {
         type: String,
-        value: 'medium',
+        value: 'small',
     },
     status: {
         type: String,
@@ -63,8 +57,7 @@ const props = {
         type: String,
     },
     suffixIcon: {
-        type: null,
-        value: null,
+        type: String,
     },
     tips: {
         type: String,

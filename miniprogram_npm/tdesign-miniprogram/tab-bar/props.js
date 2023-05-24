@@ -3,6 +3,10 @@ const props = {
         type: Boolean,
         value: true,
     },
+    color: {
+        type: Array,
+        value: ['#0052D9', 'rgba(0, 0, 0, .6)'],
+    },
     externalClasses: {
         type: Array,
     },
@@ -14,25 +18,19 @@ const props = {
         type: Boolean,
         value: true,
     },
-    shape: {
-        type: String,
-        value: 'normal',
-    },
     split: {
         type: Boolean,
         value: true,
     },
-    theme: {
-        type: String,
-        value: 'normal',
-    },
     value: {
-        type: null,
+        type: String,
+        optionalTypes: [Number, Array],
         value: null,
     },
     defaultValue: {
-        type: null,
-        value: null,
+        type: String,
+        optionalTypes: [Number, Array],
+        value: undefined,
     },
 };
 export default props;

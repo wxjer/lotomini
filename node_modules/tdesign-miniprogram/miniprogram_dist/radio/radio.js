@@ -9,6 +9,10 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import Props from './props';
 const { prefix } = config;
 const name = `${prefix}-radio`;
+const iconDefault = {
+    'fill-circle': ['check-circle-filled', 'circle'],
+    'stroke-line': ['check', ''],
+};
 let Radio = class Radio extends SuperComponent {
     constructor() {
         super(...arguments);
@@ -23,11 +27,6 @@ let Radio = class Radio extends SuperComponent {
         this.relations = {
             '../radio-group/radio-group': {
                 type: 'ancestor',
-                linked(parent) {
-                    if (parent.data.borderless) {
-                        this.setData({ borderless: true });
-                    }
-                },
             },
         };
         this.options = {
@@ -36,12 +35,6 @@ let Radio = class Radio extends SuperComponent {
         this.lifetimes = {
             attached() {
                 this.initStatus();
-            },
-            ready() {
-                var _a, _b, _c, _d;
-                this.setData({
-                    _placement: (_d = (_a = this.data.placement) !== null && _a !== void 0 ? _a : (_c = (_b = this.$parent) === null || _b === void 0 ? void 0 : _b.data) === null || _c === void 0 ? void 0 : _c.placement) !== null && _d !== void 0 ? _d : 'left',
-                });
             },
         };
         this.properties = Object.assign(Object.assign({}, Props), { borderless: {
@@ -54,14 +47,20 @@ let Radio = class Radio extends SuperComponent {
                 event: 'change',
             },
         ];
+        this.observers = {
+            checked(isChecked) {
+                this.setData({
+                    active: isChecked,
+                });
+            },
+        };
         this.data = {
             prefix,
+            active: false,
             classPrefix: name,
             customIcon: false,
-            slotIcon: false,
             optionLinked: false,
             iconVal: [],
-            _placement: '',
         };
         this.methods = {
             handleTap(e) {
@@ -70,25 +69,21 @@ let Radio = class Radio extends SuperComponent {
                 const { target } = e.currentTarget.dataset;
                 if (target === 'text' && this.data.contentDisabled)
                     return;
-                this.doChange();
-            },
-            doChange() {
-                const { value, checked } = this.data;
-                if (this.$parent) {
-                    this.$parent.updateValue(value);
+                const { value, active } = this.data;
+                const [parent] = this.getRelationNodes('../radio-group/radio-group');
+                if (parent) {
+                    parent.updateValue(value);
                 }
                 else {
-                    this._trigger('change', { checked: !checked });
+                    this._trigger('change', { checked: !active });
                 }
             },
             initStatus() {
-                var _a, _b;
                 const { icon } = this.data;
-                const isIdArr = Array.isArray(((_a = this.$parent) === null || _a === void 0 ? void 0 : _a.icon) || icon);
+                const isIdArr = Array.isArray(icon);
                 this.setData({
                     customIcon: isIdArr,
-                    slotIcon: icon === 'slot',
-                    iconVal: isIdArr ? ((_b = this.$parent) === null || _b === void 0 ? void 0 : _b.icon) || icon : [],
+                    iconVal: !isIdArr ? iconDefault[icon] : this.data.icon,
                 });
             },
             setDisabled(disabled) {
