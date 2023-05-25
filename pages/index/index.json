@@ -10,7 +10,8 @@
     "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
     "t-date-time-picker": "tdesign-miniprogram/date-time-picker/date-time-picker",
     "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
-    "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group"
+    "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group",
+    "t-calendar": "tdesign-miniprogram/calendar/calendar"
   }
 
 }

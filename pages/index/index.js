@@ -18,7 +18,28 @@ Page({
     mode: '',
     second: '10:00:00',
     minute: '23:59',
+    calendarVisible: false,
+    selectedDate:''
   },
+
+
+  //日历
+  handleCalendar() {
+    this.setData({ calendarVisible: true });
+  },
+  handleCalendarConfirm(e) {
+    const { value } = e.detail;
+    const format = (val) => {
+      const date = new Date(val);
+      return `${date.getMonth() + 1}-${date.getDate()}`;
+    };
+
+    this.setData({
+      selectedDate: format(value),
+    });
+  },
+
+
 
   showTimePicker(e) {
     const { mode } = e.currentTarget.dataset;

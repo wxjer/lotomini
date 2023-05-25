@@ -49,14 +49,20 @@
     </t-radio-group>
     <view class="custom-divider" />
     <t-checkbox-group t-class="music-id-radio-box" borderless bind:change="onChange" defaultValue="{{demoCheckboxMax}}">
-  <t-checkbox block="{{false}}" value="checkbox1" label="一" />
-  <t-checkbox block="{{false}}" value="checkbox2" label="二" />
-  <t-checkbox block="{{false}}" value="checkbox3" label="三" />
-  <t-checkbox block="{{false}}" value="checkbox4" label="四" />
-  <t-checkbox block="{{false}}" value="checkbox5" label="五" />
-  <t-checkbox block="{{false}}" value="checkbox6" label="六" />
-  <t-checkbox block="{{false}}" value="checkbox7" label="日" />
-</t-checkbox-group>
-
+      <t-checkbox block="{{false}}" value="checkbox1" label="一" />
+      <t-checkbox block="{{false}}" value="checkbox2" label="二" />
+      <t-checkbox block="{{false}}" value="checkbox3" label="三" />
+      <t-checkbox block="{{false}}" value="checkbox4" label="四" />
+      <t-checkbox block="{{false}}" value="checkbox5" label="五" />
+      <t-checkbox block="{{false}}" value="checkbox6" label="六" />
+      <t-checkbox block="{{false}}" value="checkbox7" label="日" />
+    </t-checkbox-group>
+    <view class="custom-divider" />
+    <t-calendar visible="{{calendarVisible}}" bind:confirm="handleCalendarConfirm" bind:close="onClose" />
+    <t-cell arrow title="每月这个时间：" bind:tap="handleCalendar" note="{{selectedDate}}" />
+    <view class="custom-divider" />
+    <t-button  theme="primary" size="large" block t-class="external-class">立即发送</t-button>
+    <view class="custom-divider" />
+    <t-button theme="primary" size="large" block t-class="external-class">保存计划</t-button>
   </scroll-view>
 </view>
