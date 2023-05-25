@@ -33,13 +33,13 @@
     <view class="custom-divider" />
     <t-cell class="mb-16" title="推送对象" arrow hover note="{{cityText}}" bind:click="onCityPicker" />
     <view class="custom-divider" />
-    <t-picker visible="{{cityVisible}}" value="{{cityValue}}" data-key="city" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
+    <t-picker  class="custom-picker" visible="{{cityVisible}}" value="{{cityValue}}" data-key="city" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
       <t-picker-item options="{{citys}}" />
     </t-picker>
     <!-- 时分 -->
     <t-cell title="选择时间" hover note="{{minuteText || ''}}" arrow data-mode="minute" bindtap="showTimePicker" t-class="pannel-item" />
     <!-- 时分 -->
-    <t-date-time-picker title="选择时间" visible="{{minuteVisible}}" mode="{{['null', 'minute']}}" value="{{minute}}" format="HH:mm" bindchange="onTimePickerConfirm" bindpick="onTimePickerColumnChange" bindcancel="hideTimePicker" />
+    <t-date-time-picker class="custom-picker" title="选择时间" visible="{{minuteVisible}}" mode="{{['null', 'minute']}}" value="{{minute}}" format="HH:mm" bindchange="onTimePickerConfirm" bindpick="onTimePickerColumnChange" bindcancel="hideTimePicker" />
     <t-input label="重复" value='zeze' disabled />
     <t-radio-group default-value="0" borderless t-class="music-id-radio-box">
       <t-radio class="custom-radio"  block="{{false}}" label="每天" value="0" />
