@@ -1,8 +1,15 @@
 const props = {
     backgroundColor: {
         type: String,
-        optionalTypes: [Number],
         value: 'rgba(0, 0, 0, 1)',
+    },
+    closeBtn: {
+        type: null,
+        value: false,
+    },
+    deleteBtn: {
+        type: null,
+        value: false,
     },
     images: {
         type: Array,
@@ -16,11 +23,7 @@ const props = {
         type: Boolean,
         value: false,
     },
-    deleteBtn: {
-        type: Boolean,
-        value: false,
-    },
-    closeBtn: {
+    usingCustomNavbar: {
         type: Boolean,
         value: false,
     },

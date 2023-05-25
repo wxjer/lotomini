@@ -1,13 +1,10 @@
 const props = {
     current: {
-        type: String,
-        optionalTypes: [Number],
+        type: null,
         value: null,
     },
     defaultCurrent: {
-        type: String,
-        optionalTypes: [Number],
-        value: 0,
+        type: null,
     },
     currentStatus: {
         type: String,
@@ -23,6 +20,14 @@ const props = {
     readonly: {
         type: Boolean,
         value: false,
+    },
+    separator: {
+        type: String,
+        value: 'line',
+    },
+    sequence: {
+        type: String,
+        value: 'positive',
     },
     theme: {
         type: String,

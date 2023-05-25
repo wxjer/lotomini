@@ -6,7 +6,70 @@ Page({
    */
   data: {
     fileList: [],
+    cityText: '浪味仙',
+    cityValue: [],
+    citys: [
+      { label: '北京市', value: '北京市' },
+      { label: '上海市', value: '上海市' },
+      { label: '广州市', value: '广州市' },
+      { label: '深圳市', value: '深圳市' },
+      { label: '成都市', value: '成都市' },
+    ],
+    mode: '',
+    second: '10:00:00',
+    minute: '23:59',
   },
+
+  showTimePicker(e) {
+    const { mode } = e.currentTarget.dataset;
+    this.setData({
+      mode,
+      [`${mode}Visible`]: true,
+    });
+  },
+  hideTimePicker() {
+    const { mode } = this.data;
+    this.setData({
+      [`${mode}Visible`]: false,
+    });
+  },
+  onTimePickerConfirm(e) {
+    const { value } = e.detail;
+    const { mode } = this.data;
+
+    console.log('confim', value);
+
+    this.setData({
+      [mode]: value,
+      [`${mode}Text`]: value,
+    });
+
+    this.hideTimePicker();
+  },
+
+
+  onCityPicker() {
+    this.setData({ cityVisible: true });
+  },
+  onPickerChange(e) {
+    const { key } = e.currentTarget.dataset;
+    const { value } = e.detail;
+
+    console.log('picker change:', e.detail);
+    this.setData({
+      [`${key}Visible`]: false,
+      [`${key}Text`]: value.join(' '),
+    });
+  },
+  onPickerCancel(e) {
+    const { key } = e.currentTarget.dataset;
+    console.log(e, '取消');
+    console.log('picker1 cancel:');
+    this.setData({
+      [`${key}Visible`]: false,
+    });
+  },
+
 
   handleAdd(e) {
     const { fileList } = this.data;

@@ -1,3 +1,10 @@
-import ActionSheet from './action-sheet';
-export * from './show';
-export default ActionSheet;
+import { show, close, ActionSheetTheme } from './show';
+export { ActionSheetTheme };
+export default {
+    show(options) {
+        return show(options);
+    },
+    close(options) {
+        return close(options);
+    },
+};

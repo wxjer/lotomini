@@ -1,3 +1,10 @@
+export const TimeDataUnit = {
+    DD: '天',
+    HH: '时',
+    mm: '分',
+    ss: '秒',
+    SSS: '毫秒',
+};
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 const HOUR = 60 * MINUTE;
@@ -9,11 +16,11 @@ export const parseTimeData = function (time) {
     const seconds = Math.floor((time % MINUTE) / SECOND);
     const milliseconds = Math.floor(time % SECOND);
     return {
-        days,
-        hours,
-        minutes,
-        seconds,
-        milliseconds,
+        DD: days,
+        HH: hours,
+        mm: minutes,
+        ss: seconds,
+        SSS: milliseconds,
     };
 };
 export const isSameSecond = function (time1, time2) {

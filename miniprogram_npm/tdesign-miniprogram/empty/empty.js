@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import props from './props';
 import config from '../common/config';
+import { setIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-empty`;
 let default_1 = class extends SuperComponent {
@@ -15,10 +16,17 @@ let default_1 = class extends SuperComponent {
         this.options = {
             multipleSlots: true,
         };
-        this.externalClasses = ['t-class', 't-class-description', 't-class-image'];
+        this.externalClasses = [`${prefix}-class`, `${prefix}-class-description`, `${prefix}-class-image`];
         this.properties = props;
         this.data = {
+            prefix,
             classPrefix: name,
+        };
+        this.observers = {
+            icon(icon) {
+                const obj = setIcon('icon', icon, '');
+                this.setData(Object.assign({}, obj));
+            },
         };
     }
 };

@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
-import { getCharacterLength } from '../common/utils';
+import { getCharacterLength, calcIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-input`;
 let Input = class Input extends SuperComponent {
@@ -18,9 +18,13 @@ let Input = class Input extends SuperComponent {
         };
         this.externalClasses = [
             `${prefix}-class`,
+            `${prefix}-class-prefix-icon`,
+            `${prefix}-class-label`,
             `${prefix}-class-input`,
-            `${prefix}-class-placeholder`,
-            `${prefix}-class-error-msg`,
+            `${prefix}-class-clearable`,
+            `${prefix}-class-suffix`,
+            `${prefix}-class-suffix-icon`,
+            `${prefix}-class-tips`,
         ];
         this.behaviors = ['wx://form-field'];
         this.properties = props;
@@ -28,22 +32,58 @@ let Input = class Input extends SuperComponent {
             prefix,
             classPrefix: name,
             classBasePrefix: prefix,
-            characterLength: 0,
+        };
+        this.lifetimes = {
+            ready() {
+                const { value } = this.properties;
+                this.updateValue(value == null ? '' : value);
+            },
+        };
+        this.observers = {
+            prefixIcon(v) {
+                this.setData({
+                    _prefixIcon: calcIcon(v),
+                });
+            },
+            suffixIcon(v) {
+                this.setData({
+                    _suffixIcon: calcIcon(v),
+                });
+            },
+            clearable(v) {
+                this.setData({
+                    _clearIcon: calcIcon(v, 'close-circle-filled'),
+                });
+            },
         };
         this.methods = {
-            onInput(e) {
-                const { value, cursor, keyCode } = e.detail;
-                const { maxcharacter } = this.properties;
+            updateValue(value) {
+                const { maxcharacter, maxlength } = this.properties;
                 if (maxcharacter && maxcharacter > 0 && !Number.isNaN(maxcharacter)) {
-                    const { characters = '', length = 0 } = getCharacterLength(value, maxcharacter);
-                    this.triggerEvent('change', { value: characters, cursor, keyCode });
+                    const { length, characters } = getCharacterLength('maxcharacter', value, maxcharacter);
                     this.setData({
-                        characterLength: length,
+                        value: characters,
+                        count: length,
+                    });
+                }
+                else if (maxlength > 0 && !Number.isNaN(maxlength)) {
+                    const { length, characters } = getCharacterLength('maxlength', value, maxlength);
+                    this.setData({
+                        value: characters,
+                        count: length,
                     });
                 }
                 else {
-                    this.triggerEvent('change', { value, cursor, keyCode });
+                    this.setData({
+                        value,
+                        count: value ? String(value).length : 0,
+                    });
                 }
+            },
+            onInput(e) {
+                const { value, cursor, keyCode } = e.detail;
+                this.updateValue(value);
+                this.triggerEvent('change', { value: this.data.value, cursor, keyCode });
             },
             onFocus(e) {
                 this.triggerEvent('focus', e.detail);
@@ -54,12 +94,21 @@ let Input = class Input extends SuperComponent {
             onConfirm(e) {
                 this.triggerEvent('enter', e.detail);
             },
+            onSuffixClick() {
+                this.triggerEvent('click', { trigger: 'suffix' });
+            },
+            onSuffixIconClick() {
+                this.triggerEvent('click', { trigger: 'suffix-icon' });
+            },
             clearInput(e) {
                 this.triggerEvent('clear', e.detail);
                 this.setData({ value: '' });
             },
             onKeyboardHeightChange(e) {
                 this.triggerEvent('keyboardheightchange', e.detail);
+            },
+            onNickNameReview(e) {
+                this.triggerEvent('nicknamereview', e.detail);
             },
         };
     }

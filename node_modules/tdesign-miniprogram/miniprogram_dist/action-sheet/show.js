@@ -1,28 +1,33 @@
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
+import { getInstance } from '../common/utils';
 export var ActionSheetTheme;
 (function (ActionSheetTheme) {
     ActionSheetTheme["List"] = "list";
     ActionSheetTheme["Grid"] = "grid";
 })(ActionSheetTheme || (ActionSheetTheme = {}));
-const getInstance = function (context, selector = '#t-action-sheet') {
-    if (!context) {
-        const pages = getCurrentPages();
-        const page = pages[pages.length - 1];
-        context = page.$$basePage || page;
-    }
-    const instance = context === null || context === void 0 ? void 0 : context.selectComponent(selector);
-    if (!instance) {
-        return null;
-    }
-    return instance;
-};
 export const show = function (options) {
-    const { context, selector } = options;
+    const _a = Object.assign({}, options), { context, selector = '#t-action-sheet' } = _a, otherOptions = __rest(_a, ["context", "selector"]);
     const instance = getInstance(context, selector);
-    if (!instance) {
-        return Promise.reject(new Error('未找到ActionSheet组件, 请检查selector是否正确'));
+    if (instance) {
+        instance.show(Object.assign({}, otherOptions));
+        return instance;
     }
-    instance.resetData(() => {
-        instance.setData(Object.assign({}, options), instance.show);
-    });
-    return instance;
+    console.error('未找到组件,请确认 selector && context 是否正确');
+};
+export const close = function (options) {
+    const { context, selector = '#t-action-sheet' } = Object.assign({}, options);
+    const instance = getInstance(context, selector);
+    if (instance) {
+        instance.close();
+    }
 };

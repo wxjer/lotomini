@@ -1,8 +1,4 @@
 const props = {
-    customStyle: {
-        type: String,
-        value: '',
-    },
     color: {
         type: String,
         value: '',
@@ -14,7 +10,7 @@ const props = {
     },
     size: {
         type: String,
-        value: undefined,
+        value: '',
     },
     prefix: {
         type: String,

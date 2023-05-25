@@ -13,14 +13,14 @@ let Navbar = class Navbar extends SuperComponent {
     constructor() {
         super(...arguments);
         this.externalClasses = [
-            't-class',
-            't-class-title',
-            't-class-left',
-            't-class-center',
-            't-class-left-icon',
-            't-class-home-icon',
-            't-class-capsule',
-            't-class-nav-btn',
+            `${prefix}-class`,
+            `${prefix}-class-title`,
+            `${prefix}-class-left`,
+            `${prefix}-class-center`,
+            `${prefix}-class-left-icon`,
+            `${prefix}-class-home-icon`,
+            `${prefix}-class-capsule`,
+            `${prefix}-class-nav-btn`,
         ];
         this.timer = null;
         this.options = {
@@ -46,22 +46,6 @@ let Navbar = class Navbar extends SuperComponent {
                     }, 300);
                 }
             },
-            fixed(fixed) {
-                this.setData({
-                    fixedClass: fixed ? `${name}--fixed` : '',
-                });
-            },
-            background(background) {
-                const list = [];
-                if (background)
-                    list.push(`background: ${background}`);
-                this.setData({
-                    contentStyle: list.join(';'),
-                });
-            },
-            'homeIcon, leftIcon'() {
-                this.calcLeftBtn();
-            },
             'title,titleMaxLength'() {
                 const { title } = this.properties;
                 const titleMaxLength = this.properties.titleMaxLength || Number.MAX_SAFE_INTEGER;
@@ -74,80 +58,59 @@ let Navbar = class Navbar extends SuperComponent {
             },
         };
         this.data = {
-            hasHomeIcon: false,
-            hasBackIcon: false,
+            prefix,
             classPrefix: name,
-            fixedClass: `${name}--fixed`,
-            contentStyle: '',
             boxStyle: '',
-            opacity: 0.1,
-            ios: false,
-            delta: 1,
             showTitle: '',
+        };
+        this.methods = {
+            goBack() {
+                const { delta } = this.data;
+                const that = this;
+                this.triggerEvent('go-back');
+                if (delta > 0) {
+                    wx.navigateBack({
+                        delta,
+                        fail(e) {
+                            that.triggerEvent('fail', e);
+                        },
+                        complete(e) {
+                            that.triggerEvent('complete', e);
+                        },
+                        success(e) {
+                            that.triggerEvent('success', e);
+                        },
+                    });
+                }
+            },
         };
     }
     attached() {
-        this.calcLeftBtn();
         let rect = null;
         if (wx.getMenuButtonBoundingClientRect) {
             rect = wx.getMenuButtonBoundingClientRect();
         }
+        if (!rect)
+            return;
         wx.getSystemInfo({
             success: (res) => {
-                const ios = !!(res.system.toLowerCase().search('ios') + 1);
-                const navbarHeight = ios ? 44 : 48;
                 const boxStyleList = [];
-                boxStyleList.push(`--narbar-padding-top:${(rect.bottom + rect.top) / 2 - navbarHeight / 2}px;`);
+                const { statusBarHeight } = wx.getSystemInfoSync();
+                boxStyleList.push(`--td-navbar-padding-top:${statusBarHeight}px`);
                 if (rect && (res === null || res === void 0 ? void 0 : res.windowWidth)) {
-                    boxStyleList.push(`--navbar-right:${res.windowWidth - rect.left}px;`);
+                    boxStyleList.push(`--td-navbar-right:${res.windowWidth - rect.left}px`);
                 }
-                boxStyleList.push(`--capsule-height:${rect.height}px;`);
-                boxStyleList.push(`--capsule-wight:${rect.width}px;`);
-                boxStyleList.push(`--navbar-height:${navbarHeight}px;`);
+                boxStyleList.push(`--td-navbar-capsule-height: ${rect.height}px`);
+                boxStyleList.push(`--td-navbar-capsule-width: ${rect.width}px`);
+                boxStyleList.push(`--td-navbar-height: ${(rect.top - statusBarHeight) * 2 + rect.height}px`);
                 this.setData({
-                    ios,
-                    boxStyle: boxStyleList.join(';'),
+                    boxStyle: `${boxStyleList.join('; ')}`,
                 });
             },
             fail: (err) => {
                 console.error('navbar 获取系统信息失败', err);
             },
         });
-    }
-    calcLeftBtn() {
-        const { homeIcon, leftIcon } = this.properties;
-        let home = false;
-        let back = false;
-        if (homeIcon)
-            home = true;
-        if (leftIcon)
-            back = true;
-        this.setData({
-            hasHomeIcon: home,
-            hasBackIcon: back,
-        });
-    }
-    goHome() {
-        this.triggerEvent('go-home');
-    }
-    goBack() {
-        const { delta } = this.data;
-        const that = this;
-        this.triggerEvent('go-back');
-        if (delta > 0) {
-            wx.navigateBack({
-                delta,
-                fail(e) {
-                    that.triggerEvent('fail', e);
-                },
-                complete(e) {
-                    that.triggerEvent('complete', e);
-                },
-                success(e) {
-                    that.triggerEvent('success', e);
-                },
-            });
-        }
     }
 };
 Navbar = __decorate([

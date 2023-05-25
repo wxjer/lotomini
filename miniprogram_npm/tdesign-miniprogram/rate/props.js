@@ -4,8 +4,7 @@ const props = {
         value: false,
     },
     color: {
-        type: String,
-        optionalTypes: [Array],
+        type: null,
         value: '#ED7B2F',
     },
     count: {
@@ -14,11 +13,16 @@ const props = {
     },
     disabled: {
         type: Boolean,
-        value: false,
+    },
+    externalClasses: {
+        type: Array,
     },
     gap: {
-        type: Number,
-        value: 6,
+        type: null,
+        value: 8,
+    },
+    icon: {
+        type: null,
     },
     showText: {
         type: Boolean,
@@ -26,7 +30,7 @@ const props = {
     },
     size: {
         type: String,
-        value: '',
+        value: '24px',
     },
     texts: {
         type: Array,
@@ -39,10 +43,6 @@ const props = {
     defaultValue: {
         type: Number,
         value: 0,
-    },
-    variant: {
-        type: String,
-        value: 'outline',
     },
 };
 export default props;

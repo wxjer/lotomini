@@ -6,6 +6,10 @@ const props = {
     badgeProps: {
         type: Object,
     },
+    bordered: {
+        type: Boolean,
+        value: false,
+    },
     externalClasses: {
         type: Array,
     },
@@ -14,11 +18,14 @@ const props = {
         value: false,
     },
     icon: {
-        type: String,
+        type: null,
     },
     image: {
         type: String,
         value: '',
+    },
+    imageProps: {
+        type: Object,
     },
     shape: {
         type: String,
@@ -26,7 +33,7 @@ const props = {
     },
     size: {
         type: String,
-        value: '',
+        value: 'medium',
     },
 };
 export default props;

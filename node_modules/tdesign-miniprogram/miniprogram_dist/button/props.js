@@ -21,12 +21,14 @@ const props = {
         value: false,
     },
     icon: {
-        type: String,
-        value: '',
+        type: null,
     },
     loading: {
         type: Boolean,
         value: false,
+    },
+    loadingProps: {
+        type: Object,
     },
     shape: {
         type: String,
@@ -49,6 +51,10 @@ const props = {
     },
     openType: {
         type: String,
+    },
+    hoverClass: {
+        type: String,
+        value: '',
     },
     hoverStopPropagation: {
         type: Boolean,

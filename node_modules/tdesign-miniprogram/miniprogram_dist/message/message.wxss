@@ -32,59 +32,55 @@
   right: 0;
   display: flex;
   justify-content: flex-start;
+  height: 96rpx;
   align-items: center;
   z-index: 15000;
-  color: #0052d9;
-  padding: 24rpx 32rpx;
+  padding: 0 32rpx;
   box-sizing: border-box;
-  border-radius: 8rpx;
-  font-size: 28rpx;
+  border-radius: var(--td-message-border-radius, var(--td-radius-default, 12rpx));
   line-height: 1;
-  background: #ffffff;
-  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.2);
-  opacity: 0;
+  background-color: var(--td-message-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
+  box-shadow: var(--td-message-box-shadow, var(--td-shadow-4, 0 2px 8px 0 rgba(0, 0, 0, 0.06)));
 }
 .t-message__text {
   display: inline-block;
+  color: var(--td-message-content-font-color, var(--td-font-gray-1, rgba(0, 0, 0, 0.9)));
+  font-size: var(--td-font-size-base, 28rpx);
+  line-height: 44rpx;
 }
 .t-message__text-wrap {
   flex: 1 1 auto;
   overflow-x: hidden;
   text-overflow: ellipsis;
-  line-height: 44rpx;
 }
 .t-message__text-nowrap {
   word-break: keep-all;
   white-space: nowrap;
 }
 .t-message--info {
-  color: #0052d9;
+  color: var(--td-message-info-color, var(--td-brand-color, var(--td-primary-color-7, #0052d9)));
 }
 .t-message--success {
-  color: #00a870;
+  color: var(--td-message-success-color, var(--td-success-color, var(--td-success-color-5, #2ba471)));
 }
 .t-message--warning {
-  color: #ed7b2f;
+  color: var(--td-message-warning-color, var(--td-warning-color, var(--td-warning-color-5, #e37318)));
 }
 .t-message--error {
-  color: #e34d59;
+  color: var(--td-message-error-color, var(--td-error-color, var(--td-error-color-6, #d54941)));
 }
-.t-message .t-message__icon--left {
-  margin-right: 16rpx;
+.t-message__icon--left,
+.t-message__icon--right {
+  font-size: 44rpx;
 }
-.t-message .t-message__icon--right,
-.t-message .t-message__btn--right {
+.t-message__icon--left:not(:empty) {
+  margin-right: var(--td-spacer, 16rpx);
+}
+.t-message__icon--right {
+  color: var(--td-message-close-icon-color, var(--td-font-gray-3, rgba(0, 0, 0, 0.4)));
+}
+.t-message__icon--right:not(:empty),
+.t-message__link {
   flex: 0 0 auto;
-  margin-left: 16rpx;
-}
-.t-message .t-message__btn--right {
-  font-size: inherit;
-  line-height: inherit;
-  height: 44rpx;
-  line-height: 44rpx;
-  border-radius: 8rpx;
-  border-color: inherit;
-  color: inherit;
-  min-height: 0;
-  background: transparent;
+  margin-left: var(--td-spacer, 16rpx);
 }

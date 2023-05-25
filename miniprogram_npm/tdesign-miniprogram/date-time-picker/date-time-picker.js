@@ -10,23 +10,19 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import defaultLocale from './locale/zh';
 import props from './props';
 const { prefix } = config;
-var ModeType;
-(function (ModeType) {
-    ModeType["YEAR"] = "year";
-    ModeType["MONTH"] = "month";
-    ModeType["DATE"] = "date";
-    ModeType["HOUR"] = "hour";
-    ModeType["MINUTE"] = "minute";
-    ModeType["YEAR_ADD_HOUR"] = "year+hour";
-    ModeType["YEAR_ADD_MINUTE"] = "year+minute";
-    ModeType["MONTH_ADD_HOUR"] = "month+hour";
-    ModeType["MONTH_ADD_MINUTE"] = "month+minute";
-    ModeType["MONTH_ADD_DATE"] = "month+date";
-    ModeType["DATE_ADD_HOUR"] = "date+hour";
-    ModeType["DATE_ADD_MINUTE"] = "date+minute";
-    ModeType["NULL_HOUR"] = "null+hour";
-    ModeType["NULL_MINUTE"] = "null+minute";
-})(ModeType || (ModeType = {}));
+const name = `${prefix}-date-time-picker`;
+var ModeItem;
+(function (ModeItem) {
+    ModeItem["YEAR"] = "year";
+    ModeItem["MONTH"] = "month";
+    ModeItem["DATE"] = "date";
+    ModeItem["HOUR"] = "hour";
+    ModeItem["MINUTE"] = "minute";
+    ModeItem["SECOND"] = "second";
+})(ModeItem || (ModeItem = {}));
+const DATE_MODES = ['year', 'month', 'date'];
+const TIME_MODES = ['hour', 'minute', 'second'];
+const FULL_MODES = [...DATE_MODES, ...TIME_MODES];
 const DEFAULT_MIN_DATE = dayjs('2000-01-01 00:00:00');
 const DEFAULT_MAX_DATE = dayjs('2030-12-31 23:59:59');
 let DateTimePicker = class DateTimePicker extends SuperComponent {
@@ -37,99 +33,75 @@ let DateTimePicker = class DateTimePicker extends SuperComponent {
         this.options = {
             multipleSlots: true,
         };
-        this.initValue = null;
         this.observers = {
-            value() {
+            'start, end, value': function () {
                 this.updateColumns();
             },
             mode(m) {
-                const modeName = this.getModeNameByPropsMode(m);
+                const fullModes = this.getFullModeArray(m);
                 this.setData({
-                    modeName,
+                    fullModes,
                 });
                 this.updateColumns();
             },
-            visible(v) {
-                if (v) {
-                    this.updateColumns();
-                }
-            },
         };
+        this.date = null;
         this.data = {
             prefix,
-            date: null,
+            classPrefix: name,
             columns: [],
             columnsValue: [],
-            modeName: 'date',
+            fullModes: [],
             locale: defaultLocale,
         };
-        this.lifetimes = {
-            attached() {
-                const { value, defaultValue } = this.properties;
-                if (value == null && defaultValue != null) {
-                    this.initValue = defaultValue;
-                }
+        this.controlledProps = [
+            {
+                key: 'value',
+                event: 'change',
             },
-        };
+        ];
         this.methods = {
             updateColumns() {
-                const { value, defaultValue } = this.properties;
-                const parseDate = dayjs(this.initValue || value || defaultValue || DEFAULT_MIN_DATE);
-                this.setData({
-                    date: parseDate,
-                });
+                this.date = this.getParseDate();
                 const { columns, columnsValue } = this.getValueCols();
                 this.setData({
                     columns,
                     columnsValue,
                 });
             },
-            getModeNameByPropsMode(mode) {
-                return mode.join('+');
+            getParseDate() {
+                const { value, defaultValue } = this.properties;
+                const minDate = this.getMinDate();
+                const isTimeMode = this.isTimeMode();
+                let currentValue = value || defaultValue;
+                if (isTimeMode) {
+                    const dateStr = dayjs(minDate).format('YYYY-MM-DD');
+                    currentValue = dayjs(`${dateStr} ${currentValue}`);
+                }
+                const parseDate = dayjs(currentValue || minDate);
+                const isDateValid = parseDate.isValid();
+                return isDateValid ? parseDate : minDate;
             },
             getMinDate() {
-                const { disableDate } = this.properties;
-                const startDate = disableDate === null || disableDate === void 0 ? void 0 : disableDate.before;
-                return startDate ? dayjs(startDate) : DEFAULT_MIN_DATE;
+                const { start } = this.properties;
+                return start ? dayjs(start) : DEFAULT_MIN_DATE;
             },
             getMaxDate() {
-                const { disableDate } = this.properties;
-                const endDate = disableDate === null || disableDate === void 0 ? void 0 : disableDate.after;
-                return endDate ? dayjs(endDate) : DEFAULT_MAX_DATE;
+                const { end } = this.properties;
+                return end ? dayjs(end) : DEFAULT_MAX_DATE;
             },
-            getMinYear() {
-                return this.getMinDate().year();
-            },
-            getMaxYear() {
-                return this.getMaxDate().year();
-            },
-            getMinMonth() {
-                return this.getMinDate().month();
-            },
-            getMaxMonth() {
-                return this.getMaxDate().month();
-            },
-            getMinDay() {
-                return this.getMinDate().date();
-            },
-            getMaxDay() {
-                return this.getMaxDate().date();
-            },
-            getMinHour() {
-                return this.getMinDate().hour();
-            },
-            getMaxHour() {
-                return this.getMaxDate().hour();
-            },
-            getMinMinute() {
-                return this.getMinDate().minute();
-            },
-            getMaxMinute() {
-                return this.getMaxDate().minute();
+            getDateRect(type = 'default') {
+                const map = {
+                    min: 'getMinDate',
+                    max: 'getMaxDate',
+                    default: 'getDate',
+                };
+                const date = this[map[type]]();
+                const keys = ['year', 'month', 'date', 'hour', 'minute', 'second'];
+                return keys.map((k) => { var _a; return (_a = date[k]) === null || _a === void 0 ? void 0 : _a.call(date); });
             },
             getDate() {
-                var _a;
-                return this.clipDate(((_a = this.data) === null || _a === void 0 ? void 0 : _a.date) || DEFAULT_MIN_DATE);
+                return this.clipDate((this === null || this === void 0 ? void 0 : this.date) || DEFAULT_MIN_DATE);
             },
             clipDate(date) {
                 const minDate = this.getMinDate();
@@ -148,191 +120,149 @@ let DateTimePicker = class DateTimePicker extends SuperComponent {
                 const tempDate = date.date(Math.min(beforeMonthDays.valueOf(), afterMonthDays.valueOf()));
                 return tempDate.month(month);
             },
-            getDateData() {
-                const { modeName, locale } = this.data;
-                const date = this.getDate();
-                const selYear = date.year();
-                const selMonth = date.month();
-                const selDate = date.date();
-                const selHour = date.hour();
-                const minDateYear = this.getMinYear();
-                const maxDateYear = this.getMaxYear();
-                const minDateMonth = this.getMinMonth();
-                const maxDateMonth = this.getMaxMonth();
-                const minDateDay = this.getMinDay();
-                const maxDateDay = this.getMaxDay();
-                const minDateHour = this.getMinHour();
-                const maxDateHour = this.getMaxHour();
-                const minDateMinute = this.getMinMinute();
-                const maxDateMinute = this.getMaxMinute();
+            getColumnOptions() {
+                const { fullModes } = this.data;
+                const columnOptions = [];
+                fullModes === null || fullModes === void 0 ? void 0 : fullModes.forEach((mode) => {
+                    const columnOption = this.getOptionByType(mode);
+                    columnOptions.push(columnOption);
+                });
+                return columnOptions;
+            },
+            getOptionByType(type) {
+                var _a;
+                const { locale, steps } = this.data;
+                const options = [];
+                const minEdge = this.getOptionEdge('min', type);
+                const maxEdge = this.getOptionEdge('max', type);
+                const step = (_a = steps === null || steps === void 0 ? void 0 : steps[type]) !== null && _a !== void 0 ? _a : 1;
+                for (let i = minEdge; i <= maxEdge; i += step) {
+                    const label = type === 'month' ? i + 1 : i;
+                    options.push({
+                        value: `${i}`,
+                        label: `${label + locale[type]}`,
+                    });
+                }
+                return options;
+            },
+            getYearOptions(dateParams) {
+                const { locale } = this.data;
+                const { minDateYear, maxDateYear } = dateParams;
                 const years = [];
                 for (let i = minDateYear; i <= maxDateYear; i += 1) {
                     years.push({
-                        type: ModeType.YEAR,
                         value: `${i}`,
                         label: `${i + locale.year}`,
                     });
                 }
-                if (modeName === ModeType.YEAR) {
-                    return [years];
+                return years;
+            },
+            getOptionEdge(minOrMax, type) {
+                const selDateArray = this.getDateRect();
+                const compareArray = this.getDateRect(minOrMax);
+                const edge = {
+                    month: [0, 11],
+                    date: [1, this.getDate().daysInMonth()],
+                    hour: [0, 23],
+                    minute: [0, 59],
+                    second: [0, 59],
+                };
+                const types = ['year', 'month', 'date', 'hour', 'minute', 'second'];
+                for (let i = 0, size = selDateArray.length; i < size; i += 1) {
+                    if (types[i] === type)
+                        return compareArray[i];
+                    if (compareArray[i] !== selDateArray[i])
+                        return edge[type][minOrMax === 'min' ? 0 : 1];
                 }
+                return edge[type][minOrMax === 'min' ? 0 : 1];
+            },
+            getMonthOptions() {
+                const { locale } = this.data;
                 const months = [];
-                let minMonth = 0;
-                let maxMonth = 11;
-                if (minDateYear === selYear) {
-                    minMonth = minDateMonth;
-                }
-                if (maxDateYear === selYear) {
-                    maxMonth = maxDateMonth;
-                }
+                const minMonth = this.getOptionEdge('min', 'month');
+                const maxMonth = this.getOptionEdge('max', 'month');
                 for (let i = minMonth; i <= maxMonth; i += 1) {
                     months.push({
-                        type: ModeType.MONTH,
                         value: `${i}`,
                         label: `${i + 1 + locale.month}`,
                     });
                 }
-                if (modeName === ModeType.MONTH) {
-                    return [years, months];
-                }
+                return months;
+            },
+            getDayOptions() {
+                const { locale } = this.data;
                 const days = [];
-                let minDay = 1;
-                let maxDay = date.daysInMonth();
-                if (minDateYear === selYear && minDateMonth === selMonth) {
-                    minDay = minDateDay;
-                }
-                if (maxDateYear === selYear && maxDateMonth === selMonth) {
-                    maxDay = maxDateDay;
-                }
+                const minDay = this.getOptionEdge('min', 'date');
+                const maxDay = this.getOptionEdge('max', 'date');
                 for (let i = minDay; i <= maxDay; i += 1) {
                     days.push({
-                        type: ModeType.DATE,
                         value: `${i}`,
                         label: `${i + locale.day}`,
                     });
                 }
-                if (modeName === ModeType.DATE) {
-                    return [years, months, days];
-                }
+                return days;
+            },
+            getHourOptions() {
+                const { locale } = this.data;
                 const hours = [];
-                let minHour = 0;
-                let maxHour = 23;
-                if (minDateYear === selYear && minDateMonth === selMonth && minDateDay === selDate) {
-                    minHour = minDateHour;
-                }
-                if (maxDateYear === selYear && maxDateMonth === selMonth && maxDateDay === selDate) {
-                    maxHour = maxDateHour;
-                }
+                const minHour = this.getOptionEdge('min', 'hour');
+                const maxHour = this.getOptionEdge('max', 'hour');
                 for (let i = minHour; i <= maxHour; i += 1) {
                     hours.push({
-                        type: ModeType.HOUR,
                         value: `${i}`,
                         label: `${i + locale.hour}`,
                     });
                 }
+                return hours;
+            },
+            getMinuteOptions() {
+                const { locale } = this.data;
                 const minutes = [];
-                let minMinute = 0;
-                let maxMinute = 59;
-                if (minDateYear === selYear && minDateMonth === selMonth && minDateDay === selDate && minHour === selHour) {
-                    minMinute = minDateMinute;
-                }
-                if (maxDateYear === selYear && maxDateMonth === selMonth && maxDateDay === selDate && maxHour === selHour) {
-                    maxMinute = maxDateMinute;
-                }
+                const minMinute = this.getOptionEdge('min', 'minute');
+                const maxMinute = this.getOptionEdge('max', 'minute');
                 for (let i = minMinute; i <= maxMinute; i += 1) {
                     minutes.push({
-                        type: ModeType.MINUTE,
                         value: `${i}`,
                         label: `${i + locale.minute}`,
                     });
                 }
-                if (modeName === ModeType.MINUTE || modeName === ModeType.DATE_ADD_MINUTE) {
-                    return [years, months, days, hours, minutes];
-                }
-                if (modeName === ModeType.YEAR_ADD_HOUR) {
-                    return [years, hours];
-                }
-                if (modeName === ModeType.YEAR_ADD_MINUTE) {
-                    return [years, hours, minutes];
-                }
-                if (modeName === ModeType.MONTH_ADD_HOUR) {
-                    return [years, months, hours];
-                }
-                if (modeName === ModeType.MONTH_ADD_MINUTE) {
-                    return [years, months, hours, minutes];
-                }
-                if (modeName === ModeType.DATE_ADD_HOUR) {
-                    return [years, months, days, hours];
-                }
-                if (modeName === ModeType.NULL_HOUR) {
-                    return [hours];
-                }
-                if (modeName === ModeType.NULL_MINUTE) {
-                    return [hours, minutes];
-                }
-                if (modeName === ModeType.MONTH_ADD_DATE) {
-                    return [months, days];
-                }
+                return minutes;
             },
             getValueCols() {
                 return {
-                    columns: this.getDateData(),
+                    columns: this.getColumnOptions(),
                     columnsValue: this.getColumnsValue(),
                 };
             },
             getColumnsValue() {
-                const { modeName } = this.data;
+                const { fullModes } = this.data;
                 const date = this.getDate();
-                const mode2Value = {
-                    [`${ModeType.YEAR}`]: [`${date.year()}`],
-                    [`${ModeType.MONTH}`]: [`${date.year()}`, `${date.month()}`],
-                    [`${ModeType.DATE}`]: [`${date.year()}`, `${date.month()}`, `${date.date()}`],
-                    [`${ModeType.HOUR}`]: [`${date.year()}`, `${date.month()}`, `${date.date()}`, `${date.hour()}`],
-                    [`${ModeType.MINUTE}`]: [
-                        `${date.year()}`,
-                        `${date.month()}`,
-                        `${date.date()}`,
-                        `${date.hour()}`,
-                        `${date.minute()}`,
-                    ],
-                    [`${ModeType.YEAR_ADD_HOUR}`]: [`${date.year()}`, `${date.hour()}`],
-                    [`${ModeType.YEAR_ADD_MINUTE}`]: [`${date.year()}`, `${date.hour()}`, `${date.minute()}`],
-                    [`${ModeType.MONTH_ADD_HOUR}`]: [`${date.year()}`, `${date.month()}`, `${date.hour()}`],
-                    [`${ModeType.MONTH_ADD_MINUTE}`]: [`${date.year()}`, `${date.month()}`, `${date.hour()}`, `${date.minute()}`],
-                    [`${ModeType.DATE_ADD_HOUR}`]: [`${date.year()}`, `${date.month()}`, `${date.date()}`, `${date.hour()}`],
-                    [`${ModeType.DATE_ADD_MINUTE}`]: [
-                        `${date.year()}`,
-                        `${date.month()}`,
-                        `${date.date()}`,
-                        `${date.hour()}`,
-                        `${date.minute()}`,
-                    ],
-                    [`${ModeType.NULL_HOUR}`]: [`${date.hour()}`],
-                    [`${ModeType.NULL_MINUTE}`]: [`${date.hour()}`, `${date.minute()}`],
-                    [`${ModeType.MONTH_ADD_DATE}`]: [`${date.month()}`, `${date.date()}`],
-                };
-                if (mode2Value[modeName] === undefined) {
-                    throw new Error('mode 输入项有误');
-                }
-                return mode2Value[modeName];
+                const columnsValue = [];
+                fullModes === null || fullModes === void 0 ? void 0 : fullModes.forEach((mode) => {
+                    columnsValue.push(`${date[mode]()}`);
+                });
+                return columnsValue;
             },
             getNewDate(value, type) {
                 let newValue = this.getDate();
                 switch (type) {
-                    case ModeType.YEAR:
+                    case ModeItem.YEAR:
                         newValue = this.setYear(newValue, value);
                         break;
-                    case ModeType.MONTH:
+                    case ModeItem.MONTH:
                         newValue = this.setMonth(newValue, value);
                         break;
-                    case ModeType.DATE:
+                    case ModeItem.DATE:
                         newValue = newValue.date(value);
                         break;
-                    case ModeType.HOUR:
+                    case ModeItem.HOUR:
                         newValue = newValue.hour(value);
                         break;
-                    case ModeType.MINUTE:
+                    case ModeItem.MINUTE:
                         newValue = newValue.minute(value);
+                        break;
+                    case ModeItem.SECOND:
+                        newValue = newValue.second(value);
                         break;
                     default:
                         break;
@@ -341,24 +271,77 @@ let DateTimePicker = class DateTimePicker extends SuperComponent {
             },
             onColumnChange(e) {
                 const { value, column } = e === null || e === void 0 ? void 0 : e.detail;
-                const { format } = this.properties;
-                const date = this.getDate();
-                const newValue = this.getNewDate(parseInt(value === null || value === void 0 ? void 0 : value.value, 10), value === null || value === void 0 ? void 0 : value.type);
+                const { fullModes, format } = this.data;
+                const columnValue = value === null || value === void 0 ? void 0 : value[column];
+                const columnType = fullModes === null || fullModes === void 0 ? void 0 : fullModes[column];
+                const newValue = this.getNewDate(parseInt(columnValue, 10), columnType);
+                this.date = newValue;
+                const { columns, columnsValue } = this.getValueCols();
                 this.setData({
-                    date: newValue,
+                    columns,
+                    columnsValue,
                 });
-                this.triggerEvent('column-change', { index: column, value });
-                this.triggerEvent('change', { value: date, formatValue: date.format(format) });
+                const date = this.getDate();
+                const pickValue = format ? date.format(format) : date.valueOf();
+                this.triggerEvent('pick', { value: pickValue });
             },
             onConfirm() {
                 const { format } = this.properties;
                 const date = this.getDate();
-                this.triggerEvent('confirm', { value: date, formatValue: date.format(format) });
+                const value = format ? date.format(format) : date.valueOf();
+                this._trigger('change', { value });
+                this.triggerEvent('confirm', { value });
+                this.resetColumns();
             },
             onCancel() {
+                this.resetColumns();
                 this.triggerEvent('cancel');
             },
+            onVisibleChange(e) {
+                if (!e.detail.visible) {
+                    this.resetColumns();
+                }
+            },
+            onClose(e) {
+                const { trigger } = e.detail;
+                this.triggerEvent('close', { trigger });
+            },
+            resetColumns() {
+                const parseDate = this.getParseDate();
+                this.date = parseDate;
+                const { columns, columnsValue } = this.getValueCols();
+                this.setData({
+                    columns,
+                    columnsValue,
+                });
+            },
         };
+    }
+    getFullModeArray(mode) {
+        if (typeof mode === 'string' || mode instanceof String) {
+            return this.getFullModeByModeString(mode, FULL_MODES);
+        }
+        if (Array.isArray(mode)) {
+            if ((mode === null || mode === void 0 ? void 0 : mode.length) === 1) {
+                return this.getFullModeByModeString(mode[0], FULL_MODES);
+            }
+            if ((mode === null || mode === void 0 ? void 0 : mode.length) === 2) {
+                const dateModes = this.getFullModeByModeString(mode[0], DATE_MODES);
+                const timeModes = this.getFullModeByModeString(mode[1], TIME_MODES);
+                return [...dateModes, ...timeModes];
+            }
+        }
+    }
+    getFullModeByModeString(modeString, matchModes) {
+        if (!modeString) {
+            return [];
+        }
+        const endIndex = matchModes === null || matchModes === void 0 ? void 0 : matchModes.findIndex((mode) => modeString === mode);
+        return matchModes === null || matchModes === void 0 ? void 0 : matchModes.slice(0, endIndex + 1);
+    }
+    isTimeMode() {
+        const { fullModes } = this.data;
+        return fullModes[0] === ModeItem.HOUR;
     }
 };
 DateTimePicker = __decorate([

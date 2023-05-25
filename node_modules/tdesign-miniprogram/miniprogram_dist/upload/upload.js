@@ -18,6 +18,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 import { isObject, SuperComponent, wxComponent } from '../common/src/index';
 import props from './props';
 import config from '../common/config';
+import { isOverSize } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-upload`;
 let Upload = class Upload extends SuperComponent {
@@ -34,12 +35,6 @@ let Upload = class Upload extends SuperComponent {
             proofs: [],
             customFiles: [],
             customLimit: 0,
-            config: {},
-            files: [],
-            max: 0,
-            sizeLimit: 0,
-            requestMethod: null,
-            gridItemStyle: '',
             column: 4,
         };
         this.properties = props;
@@ -50,86 +45,136 @@ let Upload = class Upload extends SuperComponent {
             },
         ];
         this.observers = {
-            files(files) {
-                this.handleLimit(files, this.data.max);
-            },
-            max(max) {
-                this.handleLimit(this.data.customFiles, max);
+            'files, max'(files, max) {
+                this.handleLimit(files, max);
             },
             gridConfig() {
                 this.updateGrid();
             },
         };
+        this.lifetimes = {
+            ready() {
+                this.handleLimit(this.data.customFiles, this.data.max);
+                this.updateGrid();
+            },
+        };
+        this.methods = {
+            uploadFiles(files) {
+                return new Promise((resolve) => {
+                    const task = this.data.requestMethod(files);
+                    if (task instanceof Promise) {
+                        return task;
+                    }
+                    resolve({});
+                });
+            },
+            startUpload(files) {
+                if (typeof this.data.requestMethod === 'function') {
+                    return this.uploadFiles(files)
+                        .then(() => {
+                        files.forEach((file) => {
+                            file.percent = 100;
+                        });
+                        this.triggerSuccessEvent(files);
+                    })
+                        .catch((err) => {
+                        this.triggerFailEvent(err);
+                    });
+                }
+                this.triggerSuccessEvent(files);
+                this.handleLimit(this.data.customFiles, this.data.max);
+                return Promise.resolve();
+            },
+            onAddTap() {
+                const { mediaType, source } = this.properties;
+                if (source === 'media') {
+                    this.chooseMedia(mediaType);
+                }
+                else {
+                    this.chooseMessageFile(mediaType);
+                }
+            },
+            chooseMedia(mediaType) {
+                const { config, sizeLimit, customLimit } = this.data;
+                wx.chooseMedia(Object.assign(Object.assign({ count: customLimit, mediaType }, config), { success: (res) => {
+                        const files = [];
+                        res.tempFiles.forEach((temp) => {
+                            const { size, fileType, tempFilePath, width, height, duration, thumbTempFilePath } = temp, res = __rest(temp, ["size", "fileType", "tempFilePath", "width", "height", "duration", "thumbTempFilePath"]);
+                            if (isOverSize(size, sizeLimit)) {
+                                let title = `${fileType === 'image' ? '图片' : '视频'}大小超过限制`;
+                                if (typeof sizeLimit !== 'number') {
+                                    title = sizeLimit.message.replace('{sizeLimit}', sizeLimit === null || sizeLimit === void 0 ? void 0 : sizeLimit.size);
+                                }
+                                wx.showToast({ icon: 'none', title });
+                                return;
+                            }
+                            const name = this.getRandFileName(tempFilePath);
+                            files.push(Object.assign({ name, type: this.getFileType(mediaType, tempFilePath, fileType), url: tempFilePath, size: size, width: width, height: height, duration: duration, thumb: thumbTempFilePath, percent: 0 }, res));
+                        });
+                        this.afterSelect(files);
+                    }, fail: (err) => {
+                        this.triggerFailEvent(err);
+                    }, complete: (res) => {
+                        this.triggerEvent('complete', res);
+                    } }));
+            },
+            chooseMessageFile(mediaType) {
+                const { max, config, sizeLimit } = this.properties;
+                wx.chooseMessageFile(Object.assign(Object.assign({ count: max, type: Array.isArray(mediaType) ? 'all' : mediaType }, config), { success: (res) => {
+                        const files = [];
+                        res.tempFiles.forEach((temp) => {
+                            const { size, type: fileType, path: tempFilePath } = temp, res = __rest(temp, ["size", "type", "path"]);
+                            if (isOverSize(size, sizeLimit)) {
+                                let title = `${fileType === 'image' ? '图片' : '视频'}大小超过限制`;
+                                if (typeof sizeLimit !== 'number') {
+                                    title = sizeLimit.message.replace('{sizeLimit}', sizeLimit === null || sizeLimit === void 0 ? void 0 : sizeLimit.size);
+                                }
+                                wx.showToast({ icon: 'none', title });
+                                return;
+                            }
+                            const name = this.getRandFileName(tempFilePath);
+                            files.push(Object.assign({ name, type: this.getFileType(mediaType, tempFilePath, fileType), url: tempFilePath, size: size, percent: 0 }, res));
+                        });
+                        this.afterSelect(files);
+                    }, fail: (err) => this.triggerFailEvent(err), complete: (res) => this.triggerEvent('complete', res) }));
+            },
+            afterSelect(files) {
+                this._trigger('select-change', {
+                    files: [...this.data.customFiles],
+                    currentSelectedFiles: [files],
+                });
+                this._trigger('add', { files });
+                this.startUpload(files);
+            },
+        };
     }
     onProofTap(e) {
         var _a;
+        this.onFileClick(e);
         const { index } = e.currentTarget.dataset;
         wx.previewImage({
             urls: this.data.customFiles.filter((file) => file.percent !== -1).map((file) => file.url),
             current: (_a = this.data.customFiles[index]) === null || _a === void 0 ? void 0 : _a.url,
         });
     }
-    ready() {
-        this.handleLimit(this.data.customFiles, this.data.max);
-        this.updateGrid();
-    }
     handleLimit(customFiles, max) {
-        while (max !== 0 && customFiles.length - max > 0) {
-            customFiles.pop();
+        if (max === 0) {
+            max = 20;
         }
-        const proofs = [];
-        customFiles.forEach((item) => {
-            if (item.type !== 'video') {
-                proofs.push(item.url);
-            }
-        });
         this.setData({
-            customFiles,
-            proofs,
-            customLimit: max === 0 ? Number.MAX_SAFE_INTEGER : max - customFiles.length,
+            customFiles: customFiles.length > max ? customFiles.slice(0, max) : customFiles,
+            customLimit: max - customFiles.length,
         });
     }
-    uploadFiles(files) {
-        return new Promise((resolve) => {
-            const task = this.data.requestMethod(files);
-            if (task instanceof Promise) {
-                return task;
-            }
-            resolve({});
-        });
+    triggerSuccessEvent(files) {
+        this._trigger('success', { files: [...this.data.customFiles, ...files] });
     }
-    startUpload(files) {
-        if (typeof this.data.requestMethod === 'function') {
-            return this.uploadFiles(files);
-        }
-        this.handleLimit(this.data.customFiles, this.data.max);
-        return Promise.resolve();
+    triggerFailEvent(err) {
+        this.triggerEvent('fail', err);
     }
-    chooseMedia(mediaType) {
-        const { config, sizeLimit, max } = this.data;
-        wx.chooseMedia(Object.assign(Object.assign({ count: max === 0 ? 9 : max, mediaType }, config), { success: (res) => {
-                const files = [];
-                res.tempFiles.forEach((temp) => {
-                    const { size, fileType, tempFilePath, width, height, duration, thumbTempFilePath } = temp, res = __rest(temp, ["size", "fileType", "tempFilePath", "width", "height", "duration", "thumbTempFilePath"]);
-                    if (sizeLimit && size > sizeLimit) {
-                        wx.showToast({ icon: 'none', title: `${fileType === 'image' ? '图片' : '视频'}大小超过限制` });
-                        return;
-                    }
-                    const name = this.getRandFileName(tempFilePath);
-                    files.push(Object.assign({ name, type: this.getFileType(mediaType, tempFilePath, fileType), url: tempFilePath, size: size, width: width, height: height, duration: duration, thumb: thumbTempFilePath, progress: 0 }, res));
-                });
-                this._trigger('select-change', {
-                    files: [...this.data.customFiles],
-                    currentSelectedFiles: [files],
-                });
-                this._trigger('add', { files });
-                this._trigger('success', { files: [...this.data.customFiles, ...files] });
-                this.startUpload(files);
-            }, fail: (err) => {
-                this.triggerEvent('fail', err);
-            }, complete: (res) => {
-                this.triggerEvent('complete', res);
-            } }));
+    onFileClick(e) {
+        const { file } = e.currentTarget.dataset;
+        this.triggerEvent('click', { file });
     }
     getFileType(mediaType, tempFilePath, fileType) {
         if (fileType)
@@ -149,19 +194,6 @@ let Upload = class Upload extends SuperComponent {
         const extIndex = filePath.lastIndexOf('.');
         const extName = extIndex === -1 ? '' : filePath.substr(extIndex);
         return parseInt(`${Date.now()}${Math.floor(Math.random() * 900 + 100)}`, 10).toString(36) + extName;
-    }
-    closePop() {
-        this.setData({ showPop: false });
-    }
-    onAddTap() {
-        const { mediaType } = this.properties;
-        this.chooseMedia(mediaType);
-    }
-    onChooseImage() {
-        this.chooseImg();
-    }
-    onChooseVideo() {
-        this.chooseVideo();
     }
     onDelete(e) {
         const { index } = e.currentTarget.dataset;

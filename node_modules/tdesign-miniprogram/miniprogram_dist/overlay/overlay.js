@@ -6,16 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
+import transition from '../mixins/transition';
 const { prefix } = config;
 const name = `${prefix}-overlay`;
 let Overlay = class Overlay extends SuperComponent {
     constructor() {
         super(...arguments);
         this.properties = {
-            visible: {
-                type: Boolean,
-                value: false,
-            },
             zIndex: {
                 type: Number,
                 value: 11000,
@@ -33,16 +30,25 @@ let Overlay = class Overlay extends SuperComponent {
                 value: true,
             },
         };
+        this.behaviors = [transition()];
         this.data = {
             prefix,
             classPrefix: name,
             computedStyle: '',
+            _zIndex: 11000,
         };
         this.observers = {
             backgroundColor(v) {
                 this.setData({
-                    computedStyle: `; background-color: ${v}`,
+                    computedStyle: `background-color: ${v};`,
                 });
+            },
+            zIndex(v) {
+                if (v !== 0) {
+                    this.setData({
+                        _zIndex: v,
+                    });
+                }
             },
         };
         this.methods = {

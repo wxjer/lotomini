@@ -10,6 +10,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 import props from './props';
+import { getInstance } from '../common/utils';
 const defaultOptions = {
     actions: false,
     buttonLayout: props.buttonLayout.value,
@@ -22,43 +23,31 @@ const defaultOptions = {
     title: '',
     visible: props.visible.value,
 };
-const getDialogInstance = function (context, selector = '#t-dialog') {
-    if (!context) {
-        const pages = getCurrentPages();
-        const page = pages[pages.length - 1];
-        context = page.$$basePage || page;
-    }
-    const instance = context ? context.selectComponent(selector) : null;
-    if (!instance) {
-        console.warn('未找到dialog组件,请检查selector是否正确');
-        return null;
-    }
-    return instance;
-};
 export default {
     alert(options) {
-        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector } = _a, otherOptions = __rest(_a, ["context", "selector"]);
-        const instance = getDialogInstance(context, selector);
+        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector = '#t-dialog' } = _a, otherOptions = __rest(_a, ["context", "selector"]);
+        const instance = getInstance(context, selector);
         if (!instance)
             return Promise.reject();
         return new Promise((resolve) => {
             instance.setData(Object.assign(Object.assign({ cancelBtn: '' }, otherOptions), { visible: true }));
-            instance._onComfirm = resolve;
+            instance._onConfirm = resolve;
         });
     },
     confirm(options) {
-        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector } = _a, otherOptions = __rest(_a, ["context", "selector"]);
-        const instance = getDialogInstance(context, selector);
+        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector = '#t-dialog' } = _a, otherOptions = __rest(_a, ["context", "selector"]);
+        const instance = getInstance(context, selector);
         if (!instance)
             return Promise.reject();
         return new Promise((resolve, reject) => {
             instance.setData(Object.assign(Object.assign({}, otherOptions), { visible: true }));
-            instance._onComfirm = resolve;
+            instance._onConfirm = resolve;
             instance._onCancel = reject;
         });
     },
-    close() {
-        const instance = getDialogInstance();
+    close(options) {
+        const { context, selector = '#t-dialog' } = Object.assign({}, options);
+        const instance = getInstance(context, selector);
         if (instance) {
             instance.close();
             return Promise.resolve();
@@ -66,15 +55,17 @@ export default {
         return Promise.reject();
     },
     action(options) {
-        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector, actions } = _a, otherOptions = __rest(_a, ["context", "selector", "actions"]);
-        const instance = getDialogInstance(context, selector);
+        const _a = Object.assign(Object.assign({}, defaultOptions), options), { context, selector = '#t-dialog', actions } = _a, otherOptions = __rest(_a, ["context", "selector", "actions"]);
+        const instance = getInstance(context, selector);
         if (!instance)
             return Promise.reject();
-        if (!actions || (typeof actions === 'object' && (actions.length === 0 || actions.length > 7))) {
-            console.warn('action 数量建议控制在1至7个');
+        const { buttonLayout = 'vertical' } = options;
+        const maxLengthSuggestion = buttonLayout === 'vertical' ? 7 : 3;
+        if (!actions || (typeof actions === 'object' && (actions.length === 0 || actions.length > maxLengthSuggestion))) {
+            console.warn(`action 数量建议控制在1至${maxLengthSuggestion}个`);
         }
         return new Promise((resolve) => {
-            instance.setData(Object.assign(Object.assign({ actions, buttonLayout: 'vertical' }, otherOptions), { visible: true }));
+            instance.setData(Object.assign(Object.assign({ actions }, otherOptions), { buttonLayout, visible: true }));
             instance._onAction = resolve;
         });
     },

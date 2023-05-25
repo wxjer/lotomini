@@ -12,8 +12,10 @@ const name = `${prefix}-footer`;
 let Footer = class Footer extends SuperComponent {
     constructor() {
         super(...arguments);
+        this.externalClasses = [`${prefix}-class`];
         this.properties = props;
         this.data = {
+            prefix,
             classPrefix: name,
         };
     }

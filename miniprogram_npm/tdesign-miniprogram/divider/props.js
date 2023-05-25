@@ -6,6 +6,10 @@ const props = {
     content: {
         type: String,
     },
+    style: {
+        type: String,
+        value: '',
+    },
     dashed: {
         type: Boolean,
         value: false,
@@ -14,14 +18,6 @@ const props = {
         type: Array,
     },
     layout: {
-        type: String,
-        value: 'horizontal',
-    },
-    lineColor: {
-        type: String,
-        value: '',
-    },
-    theme: {
         type: String,
         value: 'horizontal',
     },

@@ -7,36 +7,40 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
+import { styles, addUnit } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-icon`;
-const sizeKeywordMap = {
-    xs: '24rpx',
-    small: '28rpx',
-    middle: '32rpx',
-    large: '36rpx',
-    xl: '40rpx',
-};
 let Icon = class Icon extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class'];
+        this.externalClasses = [`${prefix}-class`];
         this.properties = props;
         this.data = {
+            componentPrefix: prefix,
             classPrefix: name,
-            fontSize: '',
+            isImage: false,
+            iconStyle: undefined,
         };
         this.observers = {
-            size(val) {
-                let fontSize = val;
-                if (Object.prototype.hasOwnProperty.call(sizeKeywordMap, val)) {
-                    fontSize = sizeKeywordMap[val];
-                }
-                this.setData({ fontSize });
+            'name, color, size, style'() {
+                this.setIconStyle();
             },
         };
         this.methods = {
             onTap(event) {
                 this.triggerEvent('click', event.detail);
+            },
+            setIconStyle() {
+                const { name, color, size } = this.properties;
+                const isImage = name.indexOf('/') !== -1;
+                const sizeValue = addUnit(size);
+                const sizeStyle = isImage ? { width: sizeValue, height: sizeValue } : {};
+                const colorStyle = color ? { color: color } : {};
+                const fontStyle = size ? { 'font-size': sizeValue } : {};
+                this.setData({
+                    isImage,
+                    iconStyle: `${styles(Object.assign(Object.assign(Object.assign({}, colorStyle), fontStyle), sizeStyle))}`,
+                });
             },
         };
     }

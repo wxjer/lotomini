@@ -7,42 +7,107 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
-import { isNumber } from '../common/utils';
+import { isNumber, classNames } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-skeleton`;
+const ThemeMap = {
+    avatar: [{ type: 'circle', size: '96rpx' }],
+    image: [{ type: 'rect', size: '144rpx' }],
+    text: [
+        [
+            { width: '24%', height: '32rpx', marginRight: '32rpx' },
+            { width: '76%', height: '32rpx' },
+        ],
+        1,
+    ],
+    paragraph: [1, 1, 1, { width: '55%' }],
+};
 let Skeleton = class Skeleton extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class', 't-class-avatar', 't-class-text'];
+        this.externalClasses = [`${prefix}-class`, `${prefix}-class-col`, `${prefix}-class-row`];
         this.properties = props;
+        this.data = {
+            prefix,
+            classPrefix: name,
+            parsedRowcols: [],
+        };
         this.observers = {
-            rowCol(val) {
-                const rowStyles = [];
-                const isNumList = [];
-                if (Array.isArray(val)) {
-                    val.forEach((v) => {
-                        if (isNumber(v)) {
-                            const curArr = [];
-                            const defaultWidth = `${(686 - 32 * (v - 1)) / v}rpx`;
-                            for (let i = 0; i < v; i++) {
-                                curArr.push({ width: defaultWidth, height: '32rpx' });
-                            }
-                            rowStyles.push(curArr);
-                            isNumList.push(true);
-                        }
-                        else {
-                            rowStyles.push(Array.isArray(v) ? v : [v]);
-                            isNumList.push(false);
-                        }
-                    });
-                }
-                this.setData({ rowStyles, isNumList });
+            rowCol() {
+                this.init();
             },
         };
-        this.data = {
-            classPrefix: name,
-            isNumList: [],
-            rowStyles: [],
+        this.lifetimes = {
+            attached() {
+                this.init();
+            },
+        };
+        this.methods = {
+            init() {
+                const { theme, rowCol } = this.properties;
+                const rowCols = [];
+                if (rowCol.length) {
+                    rowCols.push(...rowCol);
+                }
+                else {
+                    rowCols.push(...ThemeMap[theme || 'text']);
+                }
+                const parsedRowcols = rowCols.map((item) => {
+                    if (isNumber(item)) {
+                        return [
+                            {
+                                class: this.getColItemClass({ type: 'text' }),
+                                style: {},
+                            },
+                        ];
+                    }
+                    if (Array.isArray(item)) {
+                        return item.map((col) => {
+                            return Object.assign(Object.assign({}, col), { class: this.getColItemClass(col), style: this.getColItemStyle(col) });
+                        });
+                    }
+                    const nItem = item;
+                    return [
+                        Object.assign(Object.assign({}, nItem), { class: this.getColItemClass(nItem), style: this.getColItemStyle(nItem) }),
+                    ];
+                });
+                this.setData({
+                    parsedRowcols,
+                });
+            },
+            getColItemClass(obj) {
+                return classNames([
+                    `${name}__col`,
+                    `${name}--type-${obj.type || 'text'}`,
+                    `${name}--animation-${this.properties.animation}`,
+                ]);
+            },
+            getColItemStyle(obj) {
+                const styleName = [
+                    'width',
+                    'height',
+                    'marginRight',
+                    'marginLeft',
+                    'margin',
+                    'size',
+                    'background',
+                    'backgroundColor',
+                    'borderRadius',
+                ];
+                const style = {};
+                styleName.forEach((name) => {
+                    if (name in obj) {
+                        const px = isNumber(obj[name]) ? `${obj[name]}px` : obj[name];
+                        if (name === 'size') {
+                            [style.width, style.height] = [px, px];
+                        }
+                        else {
+                            style[name] = px;
+                        }
+                    }
+                });
+                return style;
+            },
         };
     }
 };

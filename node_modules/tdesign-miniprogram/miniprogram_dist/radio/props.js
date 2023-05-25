@@ -1,11 +1,15 @@
 const props = {
-    align: {
+    placement: {
         type: String,
-        value: 'left',
+        value: null,
     },
     allowUncheck: {
         type: Boolean,
         value: false,
+    },
+    block: {
+        type: Boolean,
+        value: true,
     },
     checked: {
         type: Boolean,
@@ -14,10 +18,6 @@ const props = {
     defaultChecked: {
         type: Boolean,
         value: false,
-    },
-    color: {
-        type: String,
-        value: '#0052d9',
     },
     content: {
         type: String,
@@ -34,9 +34,8 @@ const props = {
         type: Array,
     },
     icon: {
-        type: String,
-        optionalTypes: [Array],
-        value: 'fill-circle',
+        type: null,
+        value: 'circle',
     },
     label: {
         type: String,
@@ -54,8 +53,7 @@ const props = {
         value: '',
     },
     value: {
-        type: String,
-        optionalTypes: [Number, Boolean],
+        type: null,
         value: false,
     },
 };

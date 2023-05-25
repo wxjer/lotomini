@@ -13,14 +13,15 @@ let Tabbar = class Tabbar extends SuperComponent {
     constructor() {
         super(...arguments);
         this.relations = {
-            './tab-bar-item': {
+            '../tab-bar-item/tab-bar-item': {
                 type: 'descendant',
             },
         };
-        this.externalClasses = ['t-class'];
+        this.externalClasses = [`${prefix}-class`];
+        this.backupValue = -1;
         this.data = {
+            prefix,
             classPrefix,
-            defaultNameIndex: -1,
         };
         this.properties = props;
         this.controlledProps = [
@@ -34,51 +35,41 @@ let Tabbar = class Tabbar extends SuperComponent {
                 this.updateChildren();
             },
         };
+        this.lifetimes = {
+            ready() {
+                this.showChildren();
+            },
+        };
         this.methods = {
             showChildren() {
-                const items = this.getRelationNodes('./tab-bar-item');
-                const len = items.length;
                 const { value } = this.data;
-                if (len > 0) {
-                    items.forEach((item) => {
-                        if (item.properties.currentName === value) {
-                            item.showSpread();
-                        }
-                    });
-                }
+                this.$children.forEach((child) => {
+                    if (child.properties.value === value) {
+                        child.showSpread();
+                        child.setData({ crowded: this.$children > 3 });
+                    }
+                });
             },
             updateChildren() {
-                const items = this.getRelationNodes('./tab-bar-item');
-                const len = items.length;
                 const { value } = this.data;
-                if (len > 0) {
-                    items.forEach((item) => {
-                        item.checkActive(value);
-                    });
-                }
+                this.$children.forEach((child) => {
+                    child.checkActive(value);
+                });
             },
             updateValue(value) {
                 this._trigger('change', { value });
             },
             changeOtherSpread(value) {
-                const items = this.getRelationNodes('./tab-bar-item');
-                items.forEach((item) => {
-                    if (item.properties.currentName !== value) {
-                        item.closeSpread();
+                this.$children.forEach((child) => {
+                    if (child.properties.value !== value) {
+                        child.closeSpread();
                     }
                 });
             },
             initName() {
-                const nameIndex = this.data.defaultNameIndex + 1;
-                this.setData({
-                    defaultNameIndex: nameIndex,
-                });
-                return nameIndex;
+                return (this.backupValue += 1);
             },
         };
-    }
-    ready() {
-        this.showChildren();
     }
 };
 Tabbar = __decorate([

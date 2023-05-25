@@ -7,8 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
+import { uniqueFactory } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-badge`;
+const getUniqueID = uniqueFactory('badge');
 let Badge = class Badge extends SuperComponent {
     constructor() {
         super(...arguments);
@@ -18,8 +20,20 @@ let Badge = class Badge extends SuperComponent {
         this.externalClasses = [`${prefix}-class`, `${prefix}-class-count`, `${prefix}-class-content`];
         this.properties = props;
         this.data = {
+            prefix,
             classPrefix: name,
             value: '',
+            labelID: '',
+            descriptionID: '',
+        };
+        this.lifetimes = {
+            ready() {
+                const uniqueID = getUniqueID();
+                this.setData({
+                    labelID: `${uniqueID}_label`,
+                    descriptionID: `${uniqueID}_description`,
+                });
+            },
         };
     }
 };

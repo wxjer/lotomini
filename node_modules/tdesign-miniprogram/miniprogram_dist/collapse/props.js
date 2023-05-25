@@ -8,11 +8,15 @@ const props = {
     },
     expandIcon: {
         type: Boolean,
-        value: null,
+        value: true,
     },
     expandMutex: {
         type: Boolean,
         value: false,
+    },
+    theme: {
+        type: String,
+        value: 'default',
     },
     value: {
         type: Array,
@@ -20,6 +24,7 @@ const props = {
     },
     defaultValue: {
         type: Array,
+        value: [],
     },
 };
 export default props;

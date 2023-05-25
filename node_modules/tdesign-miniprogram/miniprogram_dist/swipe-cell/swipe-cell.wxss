@@ -43,3 +43,17 @@
   right: 0;
   transform: translate3d(100%, 0, 0);
 }
+.t-swipe-cell__content {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 var(--td-spacer-2, 32rpx);
+}
+.t-swipe-cell__icon {
+  font-size: var(--td-font-size-l, 40rpx);
+}
+.t-swipe-cell__icon + .t-swipe-cell__text:not(:empty) {
+  margin-left: var(--td-spacer, 16rpx);
+  font-size: var(--td-font-size-base, 28rpx);
+  line-height: 44rpx;
+}

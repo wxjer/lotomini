@@ -7,19 +7,77 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { wxComponent, SuperComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
+import { classNames, isNumber, calcIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-tag`;
 let Tag = class Tag extends SuperComponent {
     constructor() {
         super(...arguments);
         this.data = {
+            prefix,
             classPrefix: name,
-            classBasePrefix: prefix,
+            className: '',
+            tagStyle: '',
         };
-        this.externalClasses = [`${prefix}-class`];
         this.properties = props;
+        this.externalClasses = [`${prefix}-class`];
+        this.options = {
+            multipleSlots: true,
+            styleIsolation: 'apply-shared',
+        };
+        this.lifetimes = {
+            attached() {
+                this.setClass();
+                this.setTagStyle();
+            },
+        };
+        this.observers = {
+            'size, shape, theme, variant, closable, disabled'() {
+                this.setClass();
+            },
+            maxWidth() {
+                this.setTagStyle();
+            },
+            icon(v) {
+                this.setData({
+                    _icon: calcIcon(v),
+                });
+            },
+        };
         this.methods = {
-            hangleClose(e) {
+            setClass() {
+                const { prefix, classPrefix } = this.data;
+                const { size, shape, theme, variant, closable, disabled } = this.properties;
+                const tagClass = [
+                    classPrefix,
+                    `${classPrefix}--${theme || 'default'}`,
+                    `${classPrefix}--${variant}`,
+                    closable ? `${classPrefix}--closable ${prefix}-is-closable` : '',
+                    disabled ? `${classPrefix}--disabled ${prefix}-is-disabled` : '',
+                    `${classPrefix}--${size}`,
+                    `${classPrefix}--${shape}`,
+                ];
+                const className = classNames(tagClass);
+                this.setData({
+                    className,
+                });
+            },
+            setTagStyle() {
+                const { maxWidth } = this.properties;
+                if (!maxWidth) {
+                    return '';
+                }
+                const width = isNumber(maxWidth) ? `${maxWidth}px` : maxWidth;
+                this.setData({ tagStyle: `max-width:${width};` });
+            },
+            handleClick(e) {
+                if (this.data.disabled)
+                    return;
+                this.triggerEvent('click', e);
+            },
+            handleClose(e) {
+                if (this.data.disabled)
+                    return;
                 this.triggerEvent('close', e);
             },
         };

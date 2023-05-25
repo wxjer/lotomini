@@ -1,27 +1,17 @@
 const props = {
-    colors: {
-        type: Array,
-        value: ['#0052D9', 'rgba(220, 220, 220, 1)'],
-    },
     disabled: {
         type: Boolean,
         value: false,
-    },
-    disabledColor: {
-        type: Array,
-        value: ['#bbd3fb', '#dcdcdc'],
     },
     externalClasses: {
         type: Array,
     },
     label: {
-        type: String,
-        optionalTypes: [Boolean],
+        type: null,
         value: false,
     },
     marks: {
-        type: Object,
-        optionalTypes: [Array],
+        type: null,
         value: {},
     },
     max: {
@@ -44,14 +34,17 @@ const props = {
         type: Number,
         value: 1,
     },
+    theme: {
+        type: String,
+        value: 'default',
+    },
     value: {
-        type: Number,
-        optionalTypes: [Array],
+        type: null,
         value: null,
     },
     defaultValue: {
-        type: Number,
-        optionalTypes: [Array],
+        type: null,
+        value: 0,
     },
 };
 export default props;

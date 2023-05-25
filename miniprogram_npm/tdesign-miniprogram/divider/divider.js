@@ -12,7 +12,7 @@ const name = `${prefix}-divider`;
 let Divider = class Divider extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class', 't-class-content'];
+        this.externalClasses = [`${prefix}-class`, `${prefix}-class-content`];
         this.options = {
             addGlobalClass: true,
             multipleSlots: true,
@@ -21,6 +21,20 @@ let Divider = class Divider extends SuperComponent {
         this.data = {
             prefix,
             classPrefix: name,
+        };
+        this.observers = {
+            lineColor() {
+                this.setStyle();
+            },
+        };
+        this.methods = {
+            setStyle() {
+                const { lineColor } = this.properties;
+                const dividerStyle = `${lineColor ? `border-color: ${lineColor};` : ''}`;
+                this.setData({
+                    dividerStyle,
+                });
+            },
         };
     }
 };

@@ -1,15 +1,22 @@
 const props = {
+    autoClose: {
+        type: Boolean,
+        value: true,
+    },
     cancelBtn: {
-        type: String,
-        value: '',
+        type: null,
+        value: true,
     },
     confirmBtn: {
-        type: String,
-        value: '',
+        type: null,
+        value: true,
     },
     header: {
         type: Boolean,
         value: true,
+    },
+    keys: {
+        type: Object,
     },
     title: {
         type: String,
@@ -25,6 +32,10 @@ const props = {
     visible: {
         type: Boolean,
         value: false,
+    },
+    popupProps: {
+        type: Object,
+        value: {},
     },
 };
 export default props;

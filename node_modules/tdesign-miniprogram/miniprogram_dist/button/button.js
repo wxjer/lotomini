@@ -8,6 +8,7 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
 import { canIUseFormFieldButton } from '../common/version';
+import { setIcon } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-button`;
 let Button = class Button extends SuperComponent {
@@ -16,14 +17,21 @@ let Button = class Button extends SuperComponent {
         this.externalClasses = [`${prefix}-class`, `${prefix}-class-icon`, `${prefix}-class-loading`];
         this.behaviors = canIUseFormFieldButton() ? ['wx://form-field-button'] : [];
         this.properties = props;
+        this.options = {
+            multipleSlots: true,
+        };
         this.data = {
             prefix,
             className: '',
             classPrefix: name,
         };
         this.observers = {
-            'theme, size, plain, block, shape, disabled, loading'() {
+            'theme, size, plain, block, shape, disabled, loading, variant'() {
                 this.setClass();
+            },
+            icon(icon) {
+                const obj = setIcon('icon', icon, '');
+                this.setData(Object.assign({}, obj));
             },
         };
         this.lifetimes = {
@@ -36,17 +44,17 @@ let Button = class Button extends SuperComponent {
                 const classList = [
                     name,
                     `${prefix}-class`,
+                    `${name}--${this.data.variant || 'base'}`,
                     `${name}--${this.data.theme || 'default'}`,
-                    `${name}--size-${this.data.size.slice(0, 1)}`,
+                    `${name}--${this.data.shape || 'rectangle'}`,
+                    `${name}--size-${this.data.size || 'medium'}`,
                 ];
-                classList.push(`${name}--${this.data.shape}`);
                 if (this.data.block) {
-                    classList.push(`${prefix}-is-block`);
+                    classList.push(`${name}--block`);
                 }
                 if (this.data.disabled) {
-                    classList.push(`${prefix}-is-disabled`);
+                    classList.push(`${name}--disabled`);
                 }
-                classList.push(`${name}--${this.data.variant}`);
                 if (this.data.ghost) {
                     classList.push(`${name}--ghost`);
                 }
@@ -76,9 +84,9 @@ let Button = class Button extends SuperComponent {
                 this.triggerEvent('chooseavatar', e.detail);
             },
             handleTap(e) {
-                if (this.data.disabled)
+                if (this.data.disabled || this.data.loading)
                     return;
-                this.triggerEvent('tap', e.detail);
+                this.triggerEvent('tap', e);
             },
         };
     }

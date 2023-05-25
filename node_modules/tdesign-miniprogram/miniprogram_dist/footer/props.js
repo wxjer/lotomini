@@ -1,18 +1,14 @@
 const props = {
-    copyright: {
+    text: {
         type: String,
         value: '',
     },
     logo: {
         type: Object,
     },
-    textLinkList: {
+    links: {
         type: Array,
         value: [],
-    },
-    theme: {
-        type: String,
-        value: 'text',
     },
 };
 export default props;

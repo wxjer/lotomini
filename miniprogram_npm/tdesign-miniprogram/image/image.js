@@ -7,26 +7,39 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { SuperComponent, wxComponent } from '../common/src/index';
 import ImageProps from './props';
 import config from '../common/config';
+import { addUnit, getRect } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-image`;
 let Image = class Image extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class', 't-class-load'];
+        this.externalClasses = [`${prefix}-class`, `${prefix}-class-load`];
         this.options = {
             multipleSlots: true,
         };
         this.properties = ImageProps;
         this.data = {
+            prefix,
             isLoading: true,
             isFailed: false,
-            widthStyle: '',
+            innerStyle: '',
             classPrefix: name,
         };
         this.preSrc = '';
         this.lifetimes = {
             attached() {
+                const { width, height } = this.data;
+                let innerStyle = '';
                 this.update();
+                if (width) {
+                    innerStyle += `width: ${addUnit(width)};`;
+                }
+                if (height) {
+                    innerStyle += `height: ${addUnit(height)};`;
+                }
+                this.setData({
+                    innerStyle,
+                });
             },
         };
         this.observers = {
@@ -36,52 +49,49 @@ let Image = class Image extends SuperComponent {
                 this.update();
             },
         };
-    }
-    onLoaded(e) {
-        const sdkVersion = wx.getSystemInfoSync().SDKVersion;
-        const versionArray = sdkVersion.split('.').map((v) => parseInt(v, 10));
-        if (versionArray[0] < 2 ||
-            (versionArray[0] === 2 && versionArray[1] < 10) ||
-            (versionArray[0] === 2 && versionArray[1] === 10 && versionArray[2] < 3)) {
-            const mode = this.properties.mode;
-            if (mode === 'heightFix') {
-                const { height: picHeight, width: picWidth } = e.detail;
-                const query = this.createSelectorQuery();
-                query
-                    .select('#image')
-                    .boundingClientRect((res) => {
-                    const { height } = res;
-                    const resultWidth = ((height / picHeight) * picWidth).toFixed(2);
-                    this.setData({ widthStyle: `width: ${resultWidth}px;` });
-                })
-                    .exec();
-            }
-        }
-        this.setData({
-            isLoading: false,
-            isFailed: false,
-        });
-        this.triggerEvent('load', e.detail);
-    }
-    onLoadError(e) {
-        this.setData({
-            isLoading: false,
-            isFailed: true,
-        });
-        this.triggerEvent('error', e.detail);
-    }
-    update() {
-        const { src } = this.properties;
-        this.preSrc = src;
-        if (!src) {
-            this.onLoadError({ errMsg: '图片链接为空' });
-        }
-        else {
-            this.setData({
-                isLoading: true,
-                isFailed: false,
-            });
-        }
+        this.methods = {
+            onLoaded(e) {
+                const sdkVersion = wx.getSystemInfoSync().SDKVersion;
+                const versionArray = sdkVersion.split('.').map((v) => parseInt(v, 10));
+                const { mode } = this.properties;
+                const isInCompatible = versionArray[0] < 2 ||
+                    (versionArray[0] === 2 && versionArray[1] < 10) ||
+                    (versionArray[0] === 2 && versionArray[1] === 10 && versionArray[2] < 3);
+                if (mode === 'heightFix' && isInCompatible) {
+                    const { height: picHeight, width: picWidth } = e.detail;
+                    getRect(this, '#image').then((rect) => {
+                        const { height } = rect;
+                        const resultWidth = ((height / picHeight) * picWidth).toFixed(2);
+                        this.setData({ innerStyle: `height: ${addUnit(height)}; width: ${resultWidth}px;` });
+                    });
+                }
+                this.setData({
+                    isLoading: false,
+                    isFailed: false,
+                });
+                this.triggerEvent('load', e.detail);
+            },
+            onLoadError(e) {
+                this.setData({
+                    isLoading: false,
+                    isFailed: true,
+                });
+                this.triggerEvent('error', e.detail);
+            },
+            update() {
+                const { src } = this.properties;
+                this.preSrc = src;
+                if (!src) {
+                    this.onLoadError({ errMsg: '图片链接为空' });
+                }
+                else {
+                    this.setData({
+                        isLoading: true,
+                        isFailed: false,
+                    });
+                }
+            },
+        };
     }
 };
 Image = __decorate([

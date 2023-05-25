@@ -8,7 +8,7 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import Props from './props';
 const { prefix } = config;
-const classPrefix = `${prefix}-checkbox`;
+const name = `${prefix}-checkbox`;
 let CheckBox = class CheckBox extends SuperComponent {
     constructor() {
         super(...arguments);
@@ -24,11 +24,14 @@ let CheckBox = class CheckBox extends SuperComponent {
             '../checkbox-group/checkbox-group': {
                 type: 'ancestor',
                 linked(parent) {
-                    const { value, disabled } = parent.data;
+                    const { value, disabled, borderless } = parent.data;
                     const valueSet = new Set(value);
                     const data = {
                         disabled: disabled || this.data.disabled,
                     };
+                    if (borderless) {
+                        data.borderless = true;
+                    }
                     data.checked = valueSet.has(this.data.value);
                     if (this.data.checkAll) {
                         data.checked = valueSet.size > 0;
@@ -39,7 +42,6 @@ let CheckBox = class CheckBox extends SuperComponent {
         };
         this.options = {
             multipleSlots: true,
-            styleIsolation: 'shared',
         };
         this.properties = Object.assign(Object.assign({}, Props), { theme: {
                 type: String,
@@ -50,7 +52,7 @@ let CheckBox = class CheckBox extends SuperComponent {
             } });
         this.data = {
             prefix,
-            classPrefix,
+            classPrefix: name,
         };
         this.controlledProps = [
             {
@@ -69,7 +71,7 @@ let CheckBox = class CheckBox extends SuperComponent {
                     return;
                 }
                 const checked = !this.data.checked;
-                const [parent] = this.getRelationNodes('../checkbox-group/checkbox-group');
+                const parent = this.$parent;
                 if (parent) {
                     parent.updateValue(Object.assign(Object.assign({}, this.data), { checked }));
                 }

@@ -3,10 +3,6 @@ const props = {
         type: Boolean,
         value: true,
     },
-    background: {
-        type: String,
-        value: '',
-    },
     delta: {
         type: Number,
         value: 1,
@@ -18,11 +14,9 @@ const props = {
         type: Boolean,
         value: true,
     },
-    homeIcon: {
-        type: String,
-    },
-    leftIcon: {
-        type: String,
+    leftArrow: {
+        type: Boolean,
+        value: false,
     },
     title: {
         type: String,

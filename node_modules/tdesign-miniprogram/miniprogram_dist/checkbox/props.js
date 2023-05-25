@@ -1,7 +1,11 @@
 const props = {
-    align: {
+    placement: {
         type: String,
         value: 'left',
+    },
+    block: {
+        type: Boolean,
+        value: true,
     },
     checkAll: {
         type: Boolean,
@@ -14,10 +18,6 @@ const props = {
     defaultChecked: {
         type: Boolean,
         value: false,
-    },
-    color: {
-        type: String,
-        value: '#0052d9',
     },
     content: {
         type: String,
@@ -33,7 +33,8 @@ const props = {
         type: Array,
     },
     icon: {
-        type: Array,
+        type: null,
+        value: 'circle',
     },
     indeterminate: {
         type: Boolean,
@@ -59,8 +60,7 @@ const props = {
         value: false,
     },
     value: {
-        type: String,
-        optionalTypes: [Number],
+        type: null,
     },
 };
 export default props;

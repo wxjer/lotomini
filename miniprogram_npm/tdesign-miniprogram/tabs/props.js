@@ -5,22 +5,35 @@ const props = {
     externalClasses: {
         type: Array,
     },
-    placement: {
-        type: String,
-        value: 'top',
-    },
     showBottomLine: {
         type: Boolean,
         value: true,
     },
-    value: {
+    spaceEvenly: {
+        type: Boolean,
+        value: true,
+    },
+    sticky: {
+        type: Boolean,
+        value: false,
+    },
+    stickyProps: {
+        type: Object,
+    },
+    swipeable: {
+        type: Boolean,
+        value: true,
+    },
+    theme: {
         type: String,
-        optionalTypes: [Number],
+        value: 'line',
+    },
+    value: {
+        type: null,
         value: null,
     },
     defaultValue: {
-        type: String,
-        optionalTypes: [Number],
+        type: null,
     },
 };
 export default props;

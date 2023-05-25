@@ -20,36 +20,66 @@ let Textarea = class Textarea extends SuperComponent {
         this.externalClasses = [
             `${prefix}-class`,
             `${prefix}-class-textarea`,
-            `${prefix}-class-placeholder`,
             `${prefix}-class-label`,
+            `${prefix}-class-indicator`,
         ];
         this.properties = props;
         this.data = {
             prefix,
-            inputValue: '',
             classPrefix: name,
-            characterLength: 0,
+            count: 0,
+        };
+        this.observers = {
+            value(val) {
+                this.updateCount(val);
+            },
         };
         this.lifetimes = {
             ready() {
-                this.setData({ inputValue: this.data.value });
+                const { value } = this.properties;
+                this.updateValue(value == null ? '' : value);
             },
         };
         this.methods = {
+            updateCount(val) {
+                const { maxcharacter, maxlength } = this.properties;
+                const { count } = this.calculateValue(val, maxcharacter, maxlength);
+                this.setData({
+                    count,
+                });
+            },
+            updateValue(val) {
+                const { maxcharacter, maxlength } = this.properties;
+                const { value, count } = this.calculateValue(val, maxcharacter, maxlength);
+                this.setData({
+                    value,
+                    count,
+                });
+            },
+            calculateValue(value, maxcharacter, maxlength) {
+                if (maxcharacter > 0 && !Number.isNaN(maxcharacter)) {
+                    const { length, characters } = getCharacterLength('maxcharacter', value, maxcharacter);
+                    return {
+                        value: characters,
+                        count: length,
+                    };
+                }
+                if (maxlength > 0 && !Number.isNaN(maxlength)) {
+                    const { length, characters } = getCharacterLength('maxlength', value, maxlength);
+                    return {
+                        value: characters,
+                        count: length,
+                    };
+                }
+                return {
+                    value,
+                    count: value ? String(value).length : 0,
+                };
+            },
             onInput(event) {
                 const { value } = event.detail;
-                const { maxcharacter } = this.properties;
-                if (maxcharacter && maxcharacter > 0 && !Number.isNaN(maxcharacter)) {
-                    const { characters = '', length = 0 } = getCharacterLength(value, maxcharacter);
-                    this.setData({
-                        value: characters,
-                        characterLength: length,
-                    });
-                }
-                else {
-                    this.setData({ inputValue: value });
-                }
-                this.triggerEvent('change', Object.assign({}, event.detail));
+                this.updateValue(value);
+                this.triggerEvent('change', { value: this.data.value });
             },
             onFocus(event) {
                 this.triggerEvent('focus', Object.assign({}, event.detail));
@@ -61,7 +91,10 @@ let Textarea = class Textarea extends SuperComponent {
                 this.triggerEvent('enter', Object.assign({}, event.detail));
             },
             onLineChange(event) {
-                this.triggerEvent('lineChange', Object.assign({}, event.detail));
+                this.triggerEvent('line-change', Object.assign({}, event.detail));
+            },
+            onKeyboardHeightChange(e) {
+                this.triggerEvent('keyboardheightchange', e.detail);
             },
         };
     }

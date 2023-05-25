@@ -12,13 +12,28 @@ const name = `${prefix}-cell-group`;
 let CellGroup = class CellGroup extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class'];
+        this.externalClasses = [`${prefix}-class`, `${prefix}-class-title`];
+        this.relations = {
+            '../cell/cell': {
+                type: 'child',
+                linked() {
+                    this.updateLastChid();
+                },
+            },
+        };
         this.options = {
             addGlobalClass: true,
         };
         this.properties = props;
         this.data = {
+            prefix,
             classPrefix: name,
+        };
+        this.methods = {
+            updateLastChid() {
+                const items = this.$children;
+                items.forEach((child, index) => child.setData({ isLastChild: index === items.length - 1 }));
+            },
         };
     }
 };

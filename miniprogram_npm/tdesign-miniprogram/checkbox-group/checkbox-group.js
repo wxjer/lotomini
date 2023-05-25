@@ -6,13 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
-import Props from '../checkbox/checkbox-group-props';
+import props from './props';
 const { prefix } = config;
 const name = `${prefix}-checkbox-group`;
 let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
     constructor() {
         super(...arguments);
-        this.externalClasses = ['t-class'];
+        this.externalClasses = [`${prefix}-class`];
         this.relations = {
             '../checkbox/checkbox': {
                 type: 'descendant',
@@ -23,16 +23,19 @@ let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
             classPrefix: name,
             checkboxOptions: [],
         };
-        this.properties = Object.assign(Object.assign({}, Props), { customStyle: String });
+        this.properties = Object.assign(Object.assign({}, props), { borderless: {
+                type: Boolean,
+                value: false,
+            } });
         this.observers = {
             value() {
                 this.updateChildren();
             },
-        };
-        this.lifetimes = {
-            attached() {
+            options() {
                 this.initWithOptions();
             },
+        };
+        this.lifetimes = {
             ready() {
                 this.setCheckall();
             },
@@ -46,7 +49,7 @@ let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
         this.$checkAll = null;
         this.methods = {
             getChilds() {
-                let items = this.getRelationNodes('../checkbox/checkbox');
+                let items = this.$children;
                 if (!items.length) {
                     items = this.selectAllComponents(`.${prefix}-checkbox-option`);
                 }
@@ -78,7 +81,9 @@ let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
                     const items = this.getChilds();
                     newValue =
                         !checked && indeterminate
-                            ? items.map((item) => item.data.value)
+                            ? items
+                                .filter(({ data }) => !(data.disabled && !newValue.includes(data.value)))
+                                .map((item) => item.data.value)
                             : items
                                 .filter(({ data }) => {
                                 if (data.disabled) {
@@ -98,7 +103,7 @@ let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
                 this._trigger('change', { value: newValue });
             },
             initWithOptions() {
-                const { options } = this.data;
+                const { options, value } = this.data;
                 if (!(options === null || options === void 0 ? void 0 : options.length) || !Array.isArray(options))
                     return;
                 const checkboxOptions = options.map((item) => {
@@ -107,8 +112,9 @@ let CheckBoxGroup = class CheckBoxGroup extends SuperComponent {
                         ? {
                             label: `${item}`,
                             value: item,
+                            checked: value === null || value === void 0 ? void 0 : value.includes(item),
                         }
-                        : Object.assign({}, item);
+                        : Object.assign(Object.assign({}, item), { checked: value === null || value === void 0 ? void 0 : value.includes(item.value) });
                 });
                 this.setData({
                     checkboxOptions,

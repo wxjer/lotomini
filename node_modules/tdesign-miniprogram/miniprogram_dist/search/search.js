@@ -16,9 +16,9 @@ let Search = class Search extends SuperComponent {
             `${prefix}-class`,
             `${prefix}-class-input-container`,
             `${prefix}-class-input`,
-            `${prefix}-class-cancel`,
+            `${prefix}-class-action`,
             `${prefix}-class-left`,
-            `${prefix}-class-right`,
+            `${prefix}-class-clear`,
         ];
         this.options = {
             multipleSlots: true,
@@ -61,7 +61,6 @@ let Search = class Search extends SuperComponent {
         this.triggerEvent('submit', { value });
     }
     onActionClick() {
-        this.triggerEvent('cancel');
         this.triggerEvent('action-click');
     }
 };

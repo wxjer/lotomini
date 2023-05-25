@@ -6,8 +6,7 @@ const props = {
         type: Array,
     },
     icon: {
-        type: String,
-        value: '',
+        type: null,
     },
     image: {
         type: String,

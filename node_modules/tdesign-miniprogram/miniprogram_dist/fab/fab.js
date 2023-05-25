@@ -13,7 +13,7 @@ let Fab = class Fab extends SuperComponent {
     constructor() {
         super(...arguments);
         this.properties = props;
-        this.externalClasses = [`${prefix}-class`, `${prefix}-class-button`];
+        this.externalClasses = [`class`, `${prefix}-class`, `${prefix}-class-button`];
         this.data = {
             prefix,
             classPrefix: name,
@@ -21,6 +21,17 @@ let Fab = class Fab extends SuperComponent {
                 size: 'large',
                 shape: 'circle',
                 theme: 'primary',
+            },
+        };
+        this.observers = {
+            text(val) {
+                if (val) {
+                    this.setData({
+                        baseButtonProps: {
+                            shape: 'round',
+                        },
+                    });
+                }
             },
         };
         this.methods = {

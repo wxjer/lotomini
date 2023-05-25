@@ -11,8 +11,7 @@ const props = {
         type: Array,
     },
     icon: {
-        type: String,
-        value: '',
+        type: null,
     },
     message: {
         type: String,

@@ -9,9 +9,6 @@ const props = {
     config: {
         type: Object,
     },
-    deleteBtn: {
-        type: String,
-    },
     files: {
         type: Array,
         value: null,
@@ -41,8 +38,11 @@ const props = {
         type: null,
     },
     sizeLimit: {
-        type: Number,
-        optionalTypes: [Object],
+        type: null,
+    },
+    source: {
+        type: String,
+        value: 'media',
     },
 };
 export default props;
