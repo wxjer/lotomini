@@ -30,7 +30,6 @@
       }
     ]
   },
-  "style": "v2",
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
     "t-input": "tdesign-miniprogram/input/input",

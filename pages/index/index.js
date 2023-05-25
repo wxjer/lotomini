@@ -19,7 +19,7 @@ Page({
     second: '10:00:00',
     minute: '23:59',
     calendarVisible: false,
-    selectedDate:''
+    selectedDate:'',
   },
 
 
