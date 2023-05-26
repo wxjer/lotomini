@@ -4,7 +4,7 @@ const Upyun = require('../../utils/upyun-wxapp-sdk')
 const upyun = new Upyun({
   bucket: 'avatarforbark',
   operator: 'loto',
-  getSignatureUrl: 'https://lotoserver.5bug.cn/getSignatureUrl'
+  getSignatureUrl: 'https://lotoserver.5bug.cn/api/getSignatureUrl'
 })
 Page({
 
