@@ -20,8 +20,8 @@
       </t-upload>
     </view>
     <view class="custom-divider" />
-    <t-input label="附加歌曲" placeholder="请粘贴歌曲分享链接(选填)"  bindchange="onSongUrlPasted"/>
-    <t-radio-group default-value="0" borderless t-class="music-id-radio-box">
+    <t-input label="附加歌曲" placeholder="请粘贴歌曲分享链接(选填)" value="{{songId}}" bindchange="onSongUrlPasted"/>
+    <t-radio-group default-value="0" borderless t-class="music-id-radio-box" bind:change="onSongTypeChange" >
       <t-radio class="custom-radio" block="{{false}}" label="歌曲id" value="0" />
       <t-radio class="custom-radio" block="{{false}}" label="歌单id" value="1" />
     </t-radio-group>

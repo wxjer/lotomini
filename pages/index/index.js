@@ -15,8 +15,9 @@ Page({
     title: '',
     content: '',
     avatarUrl: '',
-    songID: '',
+    songId: '',
     songUrl: '',
+    songType:'',
     otherSchema: '',
     pushKey: '',
     timeMode: '',
@@ -66,7 +67,11 @@ Page({
   },
   //选择已上传图片
   onSelectAvatar(e) {
-    console.log('selected img')
+    wx.showToast({
+      title: '还没开发，下版再做咯',
+      icon: 'success',
+      duration: 1000
+    })
   },
 
   //上传图片开始
@@ -157,10 +162,22 @@ Page({
 
   //上传图片结束
 
-  //歌曲
-  onSongUrlPasted() {
 
+
+  //歌曲
+  onSongUrlPasted(e) {
+    const {value} = e.detail
+    const songId = utils.extractIdFromUrl(value)
+    if(songId){
+      this.setData({
+        songId:songId,
+        songUrl: songType==1?'orpheus://playlist/'+songId:'orpheus://song/'+songId
+      })
+    }
   },
+
+  //push对象
+
 
   //日历
   handleCalendar() {
@@ -257,6 +274,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+
 
   },
 

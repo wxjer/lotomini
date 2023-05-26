@@ -1,4 +1,9 @@
 {
   "navigationBarTitleText": "我",
-  "usingComponents": {}
+  "usingComponents": {
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-avatar-group": "tdesign-miniprogram/avatar-group/avatar-group",
+    "t-input": "tdesign-miniprogram/input/input"
+
+  }
 }

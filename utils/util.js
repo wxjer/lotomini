@@ -18,7 +18,18 @@ function replaceBlank(str,target) {
   return str.replace(/\s/g, target)
 }
 
+function extractIdFromUrl(url){
+  const regex = /id=(\d+)/;
+  const match = url.match(regex);
+  if (match) {
+    return match[1];
+  } else {
+    return null;
+  }
+}
+
 module.exports = {
   replaceBlank:replaceBlank,
-  formatNumber:formatNumber
+  formatNumber:formatNumber,
+  extractIdFromUrl:extractIdFromUrl
 }
