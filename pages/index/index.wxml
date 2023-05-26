@@ -1,19 +1,16 @@
 <!--index.wxml-->
 <view class="container">
   <scroll-view scroll-y="true" class="scroll-view">
-    <t-input label="推送标题" placeholder="点击+添加空格">
-      <t-icon slot="suffix" name="add-circle" bind:click="onAddBlankTap" color="#00b40f"></t-icon>
+    <t-input label="推送标题" placeholder="嗯" bindchange="onTitleInput">
     </t-input>
     <view class="custom-divider" />
-    <t-input label="推送正文" placeholder="点击添加空格/换行">
-      <t-icon slot="suffix" name="add-circle" bind:click="onAddBlankTap" color="#00b40f"></t-icon>
-      <t-divider slot="suffix" />
-      <t-icon slot="suffix" name="enter" bind:click="onAddEnterTap" color="#00b40f"></t-icon>
+    <t-input label="推送正文" placeholder="点击右边添加换行" bindchange="onContentInput" value="{{content}}" >
+      <t-icon slot="suffix"  name="enter" bind:click="onAddEnterTap" color="#00b40f"></t-icon>
     </t-input>
     <view class="custom-divider" />
     <view class="wrapper">
-      <t-input label="推送头像" placeholder="点击右边是选已上传">
-        <t-icon slot="suffix" name="image" bind:click="onAddBlankTap" color="#00b40f"></t-icon>
+      <t-input label="推送头像" placeholder="点击右边是选已上传" value="{{avatarUrl}}">
+        <t-icon slot="suffix" name="image" bind:click="onSelectAvatar" color="#00b40f"></t-icon>
       </t-input>
     </view>
     <view class="custom-divider" />
@@ -23,7 +20,7 @@
       </t-upload>
     </view>
     <view class="custom-divider" />
-    <t-input label="附加歌曲" placeholder="请粘贴歌曲分享链接(选填)" />
+    <t-input label="附加歌曲" placeholder="请粘贴歌曲分享链接(选填)"  bindchange="onSongUrlPasted"/>
     <t-radio-group default-value="0" borderless t-class="music-id-radio-box">
       <t-radio class="custom-radio" block="{{false}}" label="歌曲id" value="0" />
       <t-radio class="custom-radio" block="{{false}}" label="歌单id" value="1" />
@@ -33,7 +30,7 @@
     <view class="custom-divider" />
     <t-cell class="mb-16" title="推送对象" arrow hover note="{{cityText}}" bind:click="onCityPicker" />
     <view class="custom-divider" />
-    <t-picker  class="custom-picker" visible="{{cityVisible}}" value="{{cityValue}}" data-key="city" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
+    <t-picker class="custom-picker" visible="{{cityVisible}}" value="{{cityValue}}" data-key="city" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
       <t-picker-item options="{{citys}}" />
     </t-picker>
     <!-- 时分 -->
@@ -42,13 +39,13 @@
     <t-date-time-picker class="custom-picker" title="选择时间" visible="{{minuteVisible}}" mode="{{['null', 'minute']}}" value="{{minute}}" format="HH:mm" bindchange="onTimePickerConfirm" bindpick="onTimePickerColumnChange" bindcancel="hideTimePicker" />
     <t-input label="重复" value='zeze' disabled />
     <t-radio-group default-value="0" borderless t-class="music-id-radio-box">
-      <t-radio class="custom-radio"  block="{{false}}" label="每天" value="0" />
+      <t-radio class="custom-radio" block="{{false}}" label="每天" value="0" />
       <t-radio class="custom-radio" block="{{false}}" color="#00a870" label="每周" value="1" />
       <t-radio class="custom-radio" block="{{false}}" label="每月" value="2" />
       <t-radio class="custom-radio" block="{{false}}" label="单次" value="3" />
     </t-radio-group>
     <view class="custom-divider" />
-    <t-checkbox-group  t-class="music-id-radio-box" borderless bind:change="onChange" defaultValue="{{demoCheckboxMax}}">
+    <t-checkbox-group t-class="music-id-radio-box" borderless bind:change="onChange" defaultValue="{{demoCheckboxMax}}">
       <t-checkbox block="{{false}}" value="checkbox1" label="一" />
       <t-checkbox block="{{false}}" value="checkbox2" label="二" />
       <t-checkbox block="{{false}}" value="checkbox3" label="三" />
@@ -58,7 +55,7 @@
       <t-checkbox block="{{false}}" value="checkbox7" label="日" />
     </t-checkbox-group>
     <view class="custom-divider" />
-    <t-calendar class="custom-calendar" visible="{{calendarVisible}}" bind:confirm="handleCalendarConfirm"  bind:close="onClose" />
+    <t-calendar class="custom-calendar" visible="{{calendarVisible}}" bind:confirm="handleCalendarConfirm" bind:close="onClose" />
     <t-cell arrow title="每月这个时间：" bind:tap="handleCalendar" note="{{selectedDate}}" />
     <view class="custom-divider" />
     <view class="button-sp-area">

@@ -1,34 +1,177 @@
 // pages/explore/index.js
+const utils = require('../../utils/util.js');
+const Upyun = require('../../utils/upyun-wxapp-sdk')
+const upyun = new Upyun({
+  bucket: 'avatarforbark',
+  operator: 'loto',
+  getSignatureUrl: 'https://lotoserver.5bug.cn/getSignatureUrl'
+})
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+    title: '',
+    content: '',
+    avatarUrl: '',
+    songID: '',
+    songUrl: '',
+    otherSchema: '',
+    pushKey: '',
+    timeMode: '',
+    pushTime: '',
+    weekTime: '',
+    monthTime: '',
     fileList: [],
     cityText: '浪味仙',
     cityValue: [],
-    citys: [
-      { label: '北京市', value: '北京市' },
-      { label: '上海市', value: '上海市' },
-      { label: '广州市', value: '广州市' },
-      { label: '深圳市', value: '深圳市' },
-      { label: '成都市', value: '成都市' },
-    ],
+    citys: [{
+      label: '成都市',
+      value: '成都市'
+    }, ],
     mode: '',
-    second: '10:00:00',
     minute: '23:59',
     calendarVisible: false,
-    selectedDate:'',
+    selectedDate: '',
   },
 
+  //标题
+  onTitleInput(e) {
+    var {
+      value
+    } = e.detail;
+    this.setData({
+      title: value
+    })
+  },
+  //正文
+  onContentInput(e) {
+    var {
+      value
+    } = e.detail;
+    this.setData({
+      content: value
+    })
+  },
+  //点击换行
+  onAddEnterTap(e) {
+    const {
+      content
+    } = this.data;
+    const updatedValue = content + '%0a'
+    this.setData({
+      content: updatedValue
+    })
+  },
+  //选择已上传图片
+  onSelectAvatar(e) {
+    console.log('selected img')
+  },
+
+  //上传图片开始
+  handleAdd(e) {
+    const {
+      fileList
+    } = this.data;
+    const {
+      files
+    } = e.detail;
+
+    // 方法1：选择完所有图片之后，统一上传，因此选择完就直接展示
+    this.setData({
+      fileList: [...fileList, ...files], // 此时设置了 fileList 之后才会展示选择的图片
+    });
+    files.forEach(file => this.onUpload(file))
+  },
+
+
+
+  onUpload(file) {
+    const {
+      fileList
+    } = this.data;
+
+    this.setData({
+      fileList: [...fileList, {
+        ...file,
+        status: 'loading'
+      }],
+    });
+    const {
+      length
+    } = fileList;
+
+    upyun.upload({
+      localPath: file.url,
+      remotePath: '/avatar/upload_{random32}{.suffix}',
+      success: (res) => {
+        console.log('uploadImage res is:', res)
+        if (res.statusCode == 200) {
+          wx.showToast({
+            title: '上传成功',
+            icon: 'success',
+            duration: 1000
+          })
+          const {
+            url
+          } = JSON.parse(res.data)
+          this.setData({
+            avatarUrl: 'https://img2.5bug.cn' + url
+          })
+        } else {
+          wx.showToast({
+            title: '上传失败',
+            icon: 'fail',
+            duration: 1000
+          })
+        }
+
+      },
+      fail: function ({
+        errMsg
+      }) {
+        console.log('uploadImage fail, errMsg is', errMsg)
+      },
+      onProcessUpdate
+    })
+
+    function onProcessUpdate(progress) {
+      console.log('upload progress' + progress)
+    }
+  },
+  handleRemove(e) {
+    const {
+      index
+    } = e.detail;
+    const {
+      fileList
+    } = this.data;
+
+    fileList.splice(index, 1);
+    this.setData({
+      fileList,
+    });
+  },
+
+
+  //上传图片结束
+
+  //歌曲
+  onSongUrlPasted() {
+
+  },
 
   //日历
   handleCalendar() {
-    this.setData({ calendarVisible: true });
+    this.setData({
+      calendarVisible: true
+    });
   },
   handleCalendarConfirm(e) {
-    const { value } = e.detail;
+    const {
+      value
+    } = e.detail;
     const format = (val) => {
       const date = new Date(val);
       return `${date.getMonth() + 1}-${date.getDate()}`;
@@ -42,21 +185,29 @@ Page({
 
 
   showTimePicker(e) {
-    const { mode } = e.currentTarget.dataset;
+    const {
+      mode
+    } = e.currentTarget.dataset;
     this.setData({
       mode,
       [`${mode}Visible`]: true,
     });
   },
   hideTimePicker() {
-    const { mode } = this.data;
+    const {
+      mode
+    } = this.data;
     this.setData({
       [`${mode}Visible`]: false,
     });
   },
   onTimePickerConfirm(e) {
-    const { value } = e.detail;
-    const { mode } = this.data;
+    const {
+      value
+    } = e.detail;
+    const {
+      mode
+    } = this.data;
 
     console.log('confim', value);
 
@@ -70,11 +221,17 @@ Page({
 
 
   onCityPicker() {
-    this.setData({ cityVisible: true });
+    this.setData({
+      cityVisible: true
+    });
   },
   onPickerChange(e) {
-    const { key } = e.currentTarget.dataset;
-    const { value } = e.detail;
+    const {
+      key
+    } = e.currentTarget.dataset;
+    const {
+      value
+    } = e.detail;
 
     console.log('picker change:', e.detail);
     this.setData({
@@ -83,7 +240,9 @@ Page({
     });
   },
   onPickerCancel(e) {
-    const { key } = e.currentTarget.dataset;
+    const {
+      key
+    } = e.currentTarget.dataset;
     console.log(e, '取消');
     console.log('picker1 cancel:');
     this.setData({
@@ -91,53 +250,6 @@ Page({
     });
   },
 
-
-  handleAdd(e) {
-    const { fileList } = this.data;
-    const { files } = e.detail;
-
-    // 方法1：选择完所有图片之后，统一上传，因此选择完就直接展示
-    this.setData({
-      fileList: [...fileList, ...files], // 此时设置了 fileList 之后才会展示选择的图片
-    });
-
-    // 方法2：每次选择图片都上传，展示每次上传图片的进度
-    // files.forEach(file => this.uploadFile(file))
-  },
-  onUpload(file) {
-    const { fileList } = this.data;
-
-    this.setData({
-      fileList: [...fileList, { ...file, status: 'loading' }],
-    });
-    const { length } = fileList;
-
-    const task = wx.uploadFile({
-      url: 'https://example.weixin.qq.com/upload', // 仅为示例，非真实的接口地址
-      filePath: file.url,
-      name: 'file',
-      formData: { user: 'test' },
-      success: () => {
-        this.setData({
-          [`fileList[${length}].status`]: 'done',
-        });
-      },
-    });
-    task.onProgressUpdate((res) => {
-      this.setData({
-        [`fileList[${length}].percent`]: res.progress,
-      });
-    });
-  },
-  handleRemove(e) {
-    const { index } = e.detail;
-    const { fileList } = this.data;
-
-    fileList.splice(index, 1);
-    this.setData({
-      fileList,
-    });
-  },
 
 
 

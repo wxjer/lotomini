@@ -14,6 +14,11 @@ const formatNumber = n => {
   return n[1] ? n : `0${n}`
 }
 
+function replaceBlank(str,target) {
+  return str.replace(/\s/g, target)
+}
+
 module.exports = {
-  formatTime
+  replaceBlank:replaceBlank,
+  formatNumber:formatNumber
 }

@@ -1,14 +1,14 @@
 {
-  "name": "miniprogram-starter",
+  "name": "loto",
   "version": "0.0.2",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["wechat", "miniprogram", "starter"],
-  "author": "leejim",
+  "keywords": ["wechat", "loto", "starter"],
+  "author": "wxj",
   "license": "MIT",
-  "description": "a start-kit for wechat miniprogram powerby TDesign miniprogram",
+  "description": "a bark tool for wechat miniprogram ",
   "dependencies": {
     "tdesign-miniprogram": "^1.1.7"
   },
