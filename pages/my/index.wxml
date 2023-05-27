@@ -1,14 +1,37 @@
 <!--logs.wxml-->
-<view class="container">
-  <view class="user-info">
-    <text>{{nickname}}</text>
-    <t-avatar class="avatar" shape="round" image="{{image}}" />
+<t-pull-down-refresh
+  class="pull-down-refresh"
+  value="{{enable}}"
+  loadingProps="{{loadingProps}}"
+  loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}"
+  bind:refresh="onRefresh"
+  bind:scroll="onScroll"
+>
+  <view class="user-info" bindtap="handleTapUserInfo">
+    <text class="nickname">{{userInfo.nickName}}</text>
+    <t-avatar class="avatar" shape="round" image="{{userInfo.avatarUrl}}" />
   </view>
-  <view class="custom-divider" />
+
+
   <t-input
   label="管理key"
   disabled
-  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '提示' } }}"
-  bind:click="click"
+  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '管理key' } }}"
+  bind:click="onTapKey"
 />
-</view>
+<view class="custom-divider" />
+<t-input
+  label="管理相册"
+  disabled
+  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '管理相册' } }}"
+  bind:click="onTapAlbum"
+/>
+<view class="custom-divider" />
+<t-input
+  label="配置图床"
+  disabled
+  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '配置图床' } }}"
+  bind:click="onTapAlbumStorage"
+/>
+<view class="custom-divider" />
+</t-pull-down-refresh>

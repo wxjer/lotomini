@@ -1,10 +1,26 @@
 
 /**index.wxss**/
-.userinfo {
+.user-info {
+  background-color: white;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
   align-items: center;
-  color: #aaa;
+
+}
+.pull-down-refresh{
+  background-color: #f5f5f5;
+  --td-pull-down-refresh-color:#19a318;
+}
+.nickname{
+  margin-left: 32rpx;
+}
+.avatar{
+  margin-right: 32rpx;
 }
 
 .userinfo-avatar {
@@ -15,7 +31,7 @@
   border-radius: 50%;
 }
 .custom-divider{
-  margin-top: 10px;
+height: 10px;
 }
 .usermotto {
   margin-top: 200px;

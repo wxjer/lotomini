@@ -1,10 +1,11 @@
 // pages/explore/index.js
 const utils = require('../../utils/util.js');
 const Upyun = require('../../utils/upyun-wxapp-sdk')
+const API_URLS = require('../../utils/api')
 const upyun = new Upyun({
   bucket: 'avatarforbark',
   operator: 'loto',
-  getSignatureUrl: 'https://lotoserver.5bug.cn/api/getSignatureUrl'
+  getSignatureUrl: API_URLS.getSignatureUrl
 })
 Page({
 
@@ -122,7 +123,7 @@ Page({
             url
           } = JSON.parse(res.data)
           this.setData({
-            avatarUrl: 'https://img2.5bug.cn' + url
+            avatarUrl: API_URLS.CDN_BASE_URL + url
           })
         } else {
           wx.showToast({
@@ -171,7 +172,7 @@ Page({
     if(songId){
       this.setData({
         songId:songId,
-        songUrl: songType==1?'orpheus://playlist/'+songId:'orpheus://song/'+songId
+        songUrl: songType==1?API_URLS.MUSIC_163_LIST_URL+songId:API_URLS.MUSIC_163_SONG_URL+songId
       })
     }
   },
