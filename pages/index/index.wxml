@@ -26,12 +26,12 @@
       <t-radio class="custom-radio" block="{{false}}" label="歌单id" value="1" />
     </t-radio-group>
     <view class="custom-divider" />
-    <t-input label="附加其他" placeholder="跟歌曲二选一，只能填一个(选填)" />
+    <t-input label="附加其他" placeholder="跟歌曲二选一，只能填一个(选填)" bindchange="onOtherPasted"/>
     <view class="custom-divider" />
-    <t-cell class="mb-16" title="推送对象" arrow hover note="{{cityText}}" bind:click="onCityPicker" />
+    <t-cell class="mb-16" title="推送对象" arrow hover note="{{pushKeyTitle}}" bind:click="onCityPicker" />
     <view class="custom-divider" />
-    <t-picker class="custom-picker" visible="{{cityVisible}}" value="{{cityValue}}" data-key="city" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
-      <t-picker-item options="{{citys}}" />
+    <t-picker class="custom-picker" visible="{{cityVisible}}" value="{{cityValue}}" data-key="key" title="推送对象" cancelBtn="取消" confirmBtn="确认" bindchange="onPickerChange" bindpick="onColumnChange" bindcancel="onPickerCancel">
+      <t-picker-item options="{{pushKey}}" />
     </t-picker>
     <!-- 时分 -->
     <t-cell title="选择时间" hover note="{{minuteText || ''}}" arrow data-mode="minute" bindtap="showTimePicker" t-class="pannel-item" />

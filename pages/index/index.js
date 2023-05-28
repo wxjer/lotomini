@@ -27,12 +27,14 @@ Page({
     weekTime: '',
     monthTime: '',
     fileList: [],
-    cityText: '浪味仙',
+    pushKeyTitle: '点击选择',
     cityValue: [],
-    citys: [{
-      label: '成都市',
-      value: '成都市'
-    }, ],
+    pushKey: app.globalData.userInfo.pushKey.map(item=>{
+      return{
+        value:item.key,
+        label:item.title
+      }
+    }),
     mode: '',
     minute: '23:59',
     calendarVisible: false,
@@ -196,7 +198,15 @@ Page({
       avatarUrl: ""
     })
   },
-
+//onSongTypeChange
+onSongTypeChange(e){
+  console.log(e)
+  const{value} = e.detail
+  this.setData({
+    songUrl: value == "1" ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId
+  })
+  console.log(this.data.songUrl)
+},
 
   //上传图片结束
 
@@ -211,9 +221,21 @@ Page({
     if (songId) {
       this.setData({
         songId: songId,
-        songUrl: songType == 1 ? API.API_URLS.MUSIC_163_LIST_URL + songId : API.API_URLS.MUSIC_163_SONG_URL + songId
+        songUrl: songType == 1 ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId
       })
     }
+  },
+
+  //other
+  onOtherPasted(){
+    var {
+      value
+    } = e.detail;
+    this.setData({
+      otherSchema: value,
+      songId:'',
+      songUrl:''
+    })
   },
 
   //push对象
@@ -290,8 +312,7 @@ Page({
 
     console.log('picker change:', e.detail);
     this.setData({
-      [`${key}Visible`]: false,
-      [`${key}Text`]: value.join(' '),
+      cityVisible: false,
     });
   },
   onPickerCancel(e) {
@@ -301,7 +322,7 @@ Page({
     console.log(e, '取消');
     console.log('picker1 cancel:');
     this.setData({
-      [`${key}Visible`]: false,
+      cityVisible: false,
     });
   },
 
@@ -341,6 +362,14 @@ Page({
         }
       }
     }
+    this.setData({
+      pushKey: app.globalData.userInfo.pushKey.map(item=>{
+        return{
+          value:item.key,
+          label:item.title
+        }
+      }),
+    })
   },
 
   /**
