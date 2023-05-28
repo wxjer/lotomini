@@ -20,7 +20,6 @@ Page({
     songUrl: '',
     songType:'',
     otherSchema: '',
-    pushKey: '',
     timeMode: '',
     pushTime: '',
     weekTime: '',

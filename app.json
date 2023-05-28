@@ -2,7 +2,10 @@
   "pages": [
     "pages/index/index",
     "pages/explore/index",
-    "pages/my/index"
+    "pages/my/index",
+    "pages/configkey/index",
+    "pages/managephotos/index",
+    "pages/addkey/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

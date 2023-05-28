@@ -4,7 +4,9 @@
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-avatar-group": "tdesign-miniprogram/avatar-group/avatar-group",
     "t-input": "tdesign-miniprogram/input/input",
-    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh"
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+
 
   },
   "disableScroll": true

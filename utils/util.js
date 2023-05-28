@@ -17,6 +17,9 @@ const formatNumber = n => {
 function replaceBlank(str,target) {
   return str.replace(/\s/g, target)
 }
+function isStringValid(str) {
+  return str !== null && str !== undefined && str.trim() !== '';
+}
 
 function extractIdFromUrl(url){
   const regex = /id=(\d+)/;
@@ -31,5 +34,6 @@ function extractIdFromUrl(url){
 module.exports = {
   replaceBlank:replaceBlank,
   formatNumber:formatNumber,
-  extractIdFromUrl:extractIdFromUrl
+  extractIdFromUrl:extractIdFromUrl,
+  isStringValid:isStringValid
 }

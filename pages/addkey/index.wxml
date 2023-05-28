@@ -1,0 +1,8 @@
+<!--pages/addkey/index.wxml-->
+
+<view>
+
+<t-input label="备注" bindchange="onTitleChange" placeholder="方便观感" value="{{title}}"></t-input>
+<t-input label="key" bindchange="onKeyChange" placeholder="就是那串key" value="{{key}}" ></t-input>
+<t-cell class="custom-t-cell" title="保存" leftIcon="save" bordered="{{true}}" bind:click="onTapSave" hover="true" />
+</view>

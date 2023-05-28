@@ -12,26 +12,8 @@
     <t-avatar class="avatar" shape="round" image="{{userInfo.avatarUrl}}" />
   </view>
 
-
-  <t-input
-  label="管理key"
-  disabled
-  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '管理key' } }}"
-  bind:click="onTapKey"
-/>
-<view class="custom-divider" />
-<t-input
-  label="管理相册"
-  disabled
-  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '管理相册' } }}"
-  bind:click="onTapAlbum"
-/>
-<view class="custom-divider" />
-<t-input
-  label="配置图床"
-  disabled
-  suffixIcon="{{ { name: 'error-circle-filled', ariaLabel: '配置图床' } }}"
-  bind:click="onTapAlbumStorage"
-/>
-<view class="custom-divider" />
+  <t-cell title="管理key" bind:click="onTapKey" hover arrow />
+  <t-cell title="管理相册" bind:click="onTapAlbum" hover arrow />
+  <t-cell title="管理图床" bind:click="onTapAlbumStorage" hover arrow />
+ 
 </t-pull-down-refresh>

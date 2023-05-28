@@ -1,0 +1,7 @@
+<!--pages/configkey/index.wxml-->
+<view>
+  <t-swipe-cell wx:for="{{keyArray}}" wx:key="index" right="{{rightIcon}}"  data-item="{{item}}"  bind:click="onActionClick">
+    <t-cell title="{{item.title}}" note="{{item.key}}" bordered="{{true}}" bind:click="tapItem"  />
+  </t-swipe-cell>
+  <t-cell class="custom-t-cell" title="添加" leftIcon="add-circle" bordered="{{true}}" bind:click="onTapAdd" hover="true" />
+</view>

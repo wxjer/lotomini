@@ -1,4 +1,7 @@
 // app.js
+
+const API = require('./utils/api.js')
+const utils = require('./utils/util')
 App({
   onLaunch() {
     const updateManager = wx.getUpdateManager()
@@ -18,8 +21,36 @@ App({
         }
       })
     })
+
+    const storageTags = {
+      nickName: API.STORAGE_TAG.nickName,
+      openId: API.STORAGE_TAG.openId,
+      avatar: API.STORAGE_TAG.avatar,
+      pushKeyJson: API.STORAGE_TAG.pushKeyJson,
+      config: API.STORAGE_TAG.config
+    };
+    
+    const globalUserInfo = this.globalData.userInfo;
+    
+    Object.keys(storageTags).forEach(key => {
+      const value = wx.getStorageSync(storageTags[key]);
+      if (utils.isStringValid(value)) {
+        globalUserInfo[key] = value;
+      }
+    });
+    const pushKey = JSON.parse(this.globalData.userInfo.pushKeyJson)
+    this.globalData.userInfo.pushKey = pushKey
+    console.log(this.globalData)
   },
   globalData: {
-    userInfo: null
+    userInfo: {
+      nickName:'',
+      avatar:'',
+      openId:'',
+      pushKey:[],
+      config:'',
+      photos:[],
+      pushKeyJson:''
+    }
   }
 })

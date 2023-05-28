@@ -10,15 +10,24 @@ const BASE = {
 }
 const API_URLS = {
   getUserLogin:`${BASE_URL}/api/login`,
-  getUpyunSinature:`${BASE_URL}/api/getSignatureUrl`
-  // 添加其他请求URL...
+  getUpyunSinature:`${BASE_URL}/api/getSignatureUrl`,
+  createUser:`${BASE_URL}/api/users`,
+  getUserProfile:`${BASE_URL}/api/users/getUser`,
+  updateUser:`${BASE_URL}/api/users/updateUser`,
+  deleteUser:`${BASE_URL}/api/users/deleteUser`,
+  addPhoto:`${BASE_URL}/api/albums/addPhoto`,
+  getAllPhotos:`${BASE_URL}/api/albums/getAllPhotos`,
+  deletePhoto:`${BASE_URL}/api/albums/deletePhoto`,
+  deletePhotos:`${BASE_URL}/api/albums/deletePhotos`,
 };
 
 const STORAGE_TAG = {
     openId:'openid',
     nickName:'nickname',
     avatar:'avatar',
-    pushKey:'pushKey'
+    pushKeyJson:'pushKeyJson',
+    config:'config',
+    photosJson:'photosJson'
 }
 
 module.exports = {
