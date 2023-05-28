@@ -7,10 +7,9 @@ Page({
    * 页面的初始数据
    */
   data: {
-    keyArray:[...app.globalData.userInfo.pushKey],
-    openId:app.globalData.userInfo.openId,
-    rightIcon: [
-      {
+    keyArray: [...app.globalData.userInfo.pushKey],
+    openId: app.globalData.userInfo.openId,
+    rightIcon: [{
         icon: 'edit',
         className: 'btn edit-btn',
       },
@@ -22,81 +21,86 @@ Page({
   },
 
   //点击操作
-  onActionClick(event){
+  onActionClick(event) {
 
-    const {icon} = event.detail
-    const {item} = event.currentTarget.dataset
-    console.log(icon,item) 
+    const {
+      icon
+    } = event.detail
+    const {
+      item
+    } = event.currentTarget.dataset
+    console.log(icon, item)
 
-    if(icon=='edit')
-    {
+    if (icon == 'edit') {
       const url = `/pages/addkey/index?type=edit&key=${item.key}&title=${item.title}`
-       wx.navigateTo({
-         url: url
-       })
-    }else{
+      wx.navigateTo({
+        url: url
+      })
+    } else {
       wx.showModal({
         title: '啊这',
         content: '确定要删除吗?',
-        success :(res) =>{
+        success: (res) => {
           if (res.confirm) {
-             this.deleteKey(item)
-          } 
+            this.deleteKey(item)
+          }
         }
       })
-      
+
     }
 
   },
 
   //删除key
-deleteKey(d){
-  wx.showLoading({
-    title: '正在删除',
-  })
-  const pushKey = this.data.keyArray.filter(item=> item.key != d.key&&item.title != d.title )
-  console.log(pushKey)
-  wx.request({
-    url: API.API_URLS.createUser,
-    data:{
-      userId:this.data.openId,
-      pushKey:pushKey,
-    },
-    success:(res)=>{
-      const statusCode = res.statusCode
-      if(statusCode == 200)
-      {
+  deleteKey(d) {
+    wx.showLoading({
+      title: '正在删除',
+    })
+    const pushKey = this.data.keyArray.filter(item => item.key != d.key && item.title != d.title)
+    console.log(pushKey)
+    wx.request({
+      url: API.API_URLS.createUser,
+      data: {
+        userID: this.data.openId,
+        pushKey: JSON.stringify(pushKey),
+      },
+      method: 'POST',
+      success: (res) => {
+        const statusCode = res.statusCode
+        if (statusCode == 200) {
+          wx.showToast({
+            title: '删除成功',
+          })
+          this.setData({
+            keyArray: pushKey
+          })
+          app.globalData.userInfo.pushKey = pushKey
+          wx.setStorageSync(API.STORAGE_TAG.pushKeyJson, JSON.stringify(pushKey))
+        } else {
+          wx.showToast({
+            title: '删除失败:' + statusCode,
+            icon: 'error'
+          })
+        }
+      },
+      fail: (res) => {
+        const {
+          statusCode
+        } = res
         wx.showToast({
-          title: '删除成功',
+          title: '删除失败:' + statusCode,
+          icon: 'error'
         })
-        this.setData({
-          keyArray:pushKey
-        })
-        app.globalData.userInfo.pushKey = pushKey
-        wx.setStorage(API.STORAGE_TAG.pushKeyJson,JSON.stringify(pushKey))
-      }else{
-        wx.showToast({
-          title: '删除失败:'+statusCode,
-          icon:'error'
-        })
+      },
+      complete() {
+        wx.hideLoading()
       }
-    },
-    fail:(res)=>{
-      const {statusCode} = res
-      wx.showToast({
-        title: '删除失败:'+statusCode,
-        icon:'error'
-      })
-    },
-    complete(){
-      wx.hideLoading()
-    }
-  })
-},
+    })
+  },
 
 
   //添加
-  onTapAdd(){
+  onTapAdd() {
     console.log('click')
     wx.navigateTo({
       url: '/pages/addkey/index',
@@ -122,7 +126,7 @@ deleteKey(d){
    */
   onShow() {
     this.setData({
-      keyArray:[...app.globalData.userInfo.pushKey],
+      keyArray: [...app.globalData.userInfo.pushKey],
     })
   },
 

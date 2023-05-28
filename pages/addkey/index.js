@@ -103,7 +103,7 @@ Page({
                  {
                    this.setData({
                      key:'',
-                     value:''
+                     title:''
                    })
                  }
                }else{
