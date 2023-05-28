@@ -1,11 +1,12 @@
 // pages/explore/index.js
 const utils = require('../../utils/util.js');
 const Upyun = require('../../utils/upyun-wxapp-sdk')
-const API_URLS = require('../../utils/api')
+const API = require('../../utils/api')
+const app = getApp()
 const upyun = new Upyun({
   bucket: 'avatarforbark',
   operator: 'loto',
-  getSignatureUrl: API_URLS.getSignatureUrl
+  getSignatureUrl: API.API_URLS.getUpyunSinature
 })
 Page({
 
@@ -13,12 +14,13 @@ Page({
    * 页面的初始数据
    */
   data: {
+    hasClickAlbum: false,
     title: '',
     content: '',
     avatarUrl: '',
     songId: '',
     songUrl: '',
-    songType:'',
+    songType: '',
     otherSchema: '',
     timeMode: '',
     pushTime: '',
@@ -67,11 +69,14 @@ Page({
   },
   //选择已上传图片
   onSelectAvatar(e) {
-    wx.showToast({
-      title: '还没开发，下版再做咯',
-      icon: 'success',
-      duration: 1000
-    })
+    if (utils.isStringValid(app.globalData.userInfo.openId)) {
+      this.setData({
+        hasClickAlbum:true
+      })
+      wx.navigateTo({
+        url: '/pages/managephotos/index?type=choose',
+      })
+    }
   },
 
   //上传图片开始
@@ -84,9 +89,11 @@ Page({
     } = e.detail;
 
     // 方法1：选择完所有图片之后，统一上传，因此选择完就直接展示
+    const list = [...fileList, ...files]
     this.setData({
-      fileList: [...fileList, ...files], // 此时设置了 fileList 之后才会展示选择的图片
+      fileList: list, // 此时设置了 fileList 之后才会展示选择的图片
     });
+
     files.forEach(file => this.onUpload(file))
   },
 
@@ -106,29 +113,26 @@ Page({
     const {
       length
     } = fileList;
-
+    console.log('upload_file' + file.url)
     upyun.upload({
       localPath: file.url,
       remotePath: '/avatar/upload_{random32}{.suffix}',
       success: (res) => {
         console.log('uploadImage res is:', res)
         if (res.statusCode == 200) {
-          wx.showToast({
-            title: '上传成功',
-            icon: 'success',
-            duration: 1000
-          })
           const {
             url
           } = JSON.parse(res.data)
           this.setData({
-            avatarUrl: API_URLS.CDN_BASE_URL + url
+            avatarUrl: API.CDN_BASE_URL + url
           })
+          this.insertPhoto(this.data.avatarUrl)
+          app.globalData.choose=''
         } else {
           wx.showToast({
             title: '上传失败',
             icon: 'fail',
-            duration: 1000
+            duration: 1500
           })
         }
 
@@ -141,22 +145,56 @@ Page({
       onProcessUpdate
     })
 
+
+
+
     function onProcessUpdate(progress) {
       console.log('upload progress' + progress)
     }
   },
-  handleRemove(e) {
-    const {
-      index
-    } = e.detail;
-    const {
-      fileList
-    } = this.data;
 
-    fileList.splice(index, 1);
+  insertPhoto(url) {
+    wx.showLoading({
+      title: '正在上传',
+    })
+    wx.request({
+      url: API.API_URLS.addPhoto,
+      data: {
+        userID: app.globalData.userInfo.openId,
+        photoURL: url
+      },
+      method: 'POST',
+      success: (res) => {
+        console.log(res)
+        const {
+          statusCode
+        } = res
+        if (statusCode == 200) {
+          wx.showToast({
+            title: '上传成功',
+          })
+        } else {
+          wx.showToast({
+            title: '上传url失败',
+          })
+        }
+      },
+      fail: (res) => {
+        wx.showToast({
+          title: '上传url失败',
+        })
+        console.log(res)
+      },
+      complete() {
+        wx.hideLoading()
+      }
+    })
+  },
+  handleRemove(e) {
     this.setData({
-      fileList,
-    });
+      fileList: [],
+      avatarUrl: ""
+    })
   },
 
 
@@ -166,12 +204,14 @@ Page({
 
   //歌曲
   onSongUrlPasted(e) {
-    const {value} = e.detail
+    const {
+      value
+    } = e.detail
     const songId = utils.extractIdFromUrl(value)
-    if(songId){
+    if (songId) {
       this.setData({
-        songId:songId,
-        songUrl: songType==1?API_URLS.MUSIC_163_LIST_URL+songId:API_URLS.MUSIC_163_SONG_URL+songId
+        songId: songId,
+        songUrl: songType == 1 ? API.API_URLS.MUSIC_163_LIST_URL + songId : API.API_URLS.MUSIC_163_SONG_URL + songId
       })
     }
   },
@@ -198,8 +238,6 @@ Page({
       selectedDate: format(value),
     });
   },
-
-
 
   showTimePicker(e) {
     const {
@@ -267,29 +305,42 @@ Page({
     });
   },
 
-
-
-
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-
-
+    console.log('onLoad')
   },
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady() {
-
+    console.log('onReady')
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow() {
-
+    console.log('onShow')
+    if(this.data.hasClickAlbum){
+      this.setData({
+        hasClickAlbum:false
+      })
+      const chooseUrl = app.globalData.choose
+      if(utils.isStringValid(chooseUrl))
+      {
+        if(this.data.avatarUrl !== chooseUrl)
+        {
+          this.setData({
+            avatarUrl:chooseUrl,
+            fileList: [{url:chooseUrl}],
+          })
+          console.log(this.data.fileList)
+        }
+      }
+    }
   },
 
   /**

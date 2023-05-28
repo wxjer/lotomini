@@ -86,16 +86,23 @@ Upyun.prototype.del = function(options) {
 }
 
 Upyun.prototype.getSignature = function(data, cb) {
+  console.log('getSignature')
   wx.request({
     url: this.getSignatureUrl,
     data: {
       data: data
     },
     success: function(res) {
+      console.log('si_'+res)
       cb(null, res.data.signature)
     },
     fail: function(err) {
+      console.log('si_err'+err)
       cb(err)
+    },
+    complete(){
+      console.log('complete')
+
     }
   })
 }

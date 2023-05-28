@@ -177,7 +177,7 @@ Page({
           data:{
             nickname:nickName,
             avatar:avatarUrl,
-            userID:this.data.userInfo.openId
+            userID:app.globalData.userInfo.openId
           },
           method:'POST',
           success:(res)=>{
@@ -202,14 +202,29 @@ Page({
 
   //点击
   onTapKey(){
-    wx.navigateTo({
-      url: '/pages/configkey/index',
-    })
+    if(this.data.hasUserInfo)
+    {
+      wx.navigateTo({
+        url: '/pages/configkey/index',
+      })
+    }else{
+      wx.showToast({
+        title: '请先登录',
+      })
+    }
+
   },
   onTapAlbum(){
+   if(this.data.hasUserInfo)
+   {
     wx.navigateTo({
       url: '/pages/managephotos/index',
     })
+   }else{
+    wx.showToast({
+      title: '请先登录',
+    })
+   }
   },
   onTapAlbumStorage(){
     wx.showToast({

@@ -18,7 +18,9 @@ function replaceBlank(str,target) {
   return str.replace(/\s/g, target)
 }
 function isStringValid(str) {
-  return str !== null && str !== undefined && str.trim() !== '';
+  const result = str !== null && str !== undefined && str.trim() !== ''
+  console.log('isStringValid'+result)
+  return result;
 }
 
 function extractIdFromUrl(url){

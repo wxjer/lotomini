@@ -1,2 +1,9 @@
 <!--pages/managephotos/index.wxml-->
-<text>pages/managephotos/index.wxml</text>
+<view class="container">
+  <t-grid class="custom-grid" column="{{4}}" theme="card">
+    <t-grid-item wx:for="{{list}}" wx:key="index" image="{{item}}" data-id="{{index}}" bind:click="clickImg" image-props="{{image_props}}" />
+  </t-grid>
+  
+  <t-action-sheet id="t-action-sheet" bind:selected="onSelected"/>
+  <t-image-viewer initial-index="{{initial_index}}" deleteBtn="{{deleteBtn}}" closeBtn="{{closeBtn}}" showIndex="{{showIndex}}" visible="{{viewer_visible}}" images="{{list}}" bind:change="onChange" bind:delete="onDelete" bind:close="onClose"></t-image-viewer>
+</view>

@@ -15,7 +15,7 @@
     </view>
     <view class="custom-divider" />
     <view class="upload-container">
-      <text class="upload-tip">点击下方是上传，二选一</text>
+      <text class="upload-tip">点击下方是上传，二选一，都得先登陆才行</text>
       <t-upload class="upload-input" mediaType="{{['image']}}" max="{{1}}" files="{{fileList}}" bind:add="handleAdd" bind:remove="handleRemove">
       </t-upload>
     </view>

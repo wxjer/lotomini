@@ -47,7 +47,7 @@
     "condition": false
   },
   "compileType": "miniprogram",
-  "libVersion": "2.19.4",
+  "libVersion": "2.31.0",
   "appid": "wx7a934edbbdf77d0c",
   "projectname": "miniprogram-starter",
   "condition": {},

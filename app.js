@@ -38,11 +38,27 @@ App({
         globalUserInfo[key] = value;
       }
     });
-    const pushKey = JSON.parse(this.globalData.userInfo.pushKeyJson)
-    this.globalData.userInfo.pushKey = pushKey
+    console.log(globalUserInfo)
+    if(utils.isStringValid(globalUserInfo.pushKeyJson))
+    {
+      const pushKey = JSON.parse(this.globalData.userInfo.pushKeyJson)
+      this.globalData.userInfo.pushKey = pushKey
+    }
+
+    const photosJson = wx.getStorageSync(API.API_URLS.photosJson)
+    if(utils.isStringValid(globalUserInfo.photosJson))
+    {
+      console.log(photosJson)
+      const photos = JSON.parse(photosJson)
+      if(photos){
+        this.globalData.userInfo.photos = photos
+      }
+    }
+  
     console.log(this.globalData)
   },
   globalData: {
+    choose:'',
     userInfo: {
       nickName:'',
       avatar:'',
