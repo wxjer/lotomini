@@ -38,7 +38,7 @@
     <!-- 时分 -->
     <t-date-time-picker class="custom-picker" title="选择时间" visible="{{minuteVisible}}" mode="{{['null', 'minute']}}" value="{{minute}}" format="HH:mm" bindchange="onTimePickerConfirm" bindpick="onTimePickerColumnChange" bindcancel="hideTimePicker" />
     <t-input label="重复" value="{{repeat}}" disabled />
-    <t-radio-group default-value="0" borderless t-class="music-id-radio-box" bind:change="onTimeModeChange">
+    <t-radio-group default-value="{0}" value="{{timeModeNumber}}" borderless t-class="music-id-radio-box" bind:change="onTimeModeChange">
       <t-radio class="custom-radio" block="{{false}}" label="每天" value="0" />
       <t-radio class="custom-radio" block="{{false}}" color="#00a870" label="每周" value="1" />
       <t-radio class="custom-radio" block="{{false}}" label="每月" value="2" />
@@ -59,9 +59,9 @@
     <t-cell arrow title="每月：" bind:tap="handleCalendar" note="{{selectedDate}}" />
     <view class="custom-divider" />
     <view class="button-sp-area">
-      <button class="mini-btn" type="primary" size="size" bindtap="handldPush" >立即发送</button>
+      <button class="mini-btn" type="primary" size="size" bindtap="handlePush" >立即发送</button>
       <view class="custom-divider" />
-      <button class="mini-btn" type="primary" size="default" bindtap="handldSave" >保存计划</button>
+      <button class="mini-btn" type="primary" size="default" bindtap="handleSave" >保存计划</button>
     </view>
   </scroll-view>
 </view>

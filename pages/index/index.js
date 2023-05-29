@@ -24,6 +24,7 @@ Page({
     songType: '',
     otherSchema: '',
     timeMode: 'everyday',
+    timeModeNumber:"0",
     pushTime: '',
     weekTime: [],
     monthTime: '',
@@ -82,11 +83,25 @@ Page({
       wx.navigateTo({
         url: '/pages/managephotos/index?type=choose',
       })
+    }else{
+      wx.showToast({
+        icon:'error',
+        title: '先登录',
+      })
     }
   },
 
   //上传图片开始
   handleAdd(e) {
+
+    if (!utils.isStringValid(app.globalData.userInfo.openId)) {
+      wx.showToast({
+        icon:'error',
+        title: '先登录',
+      })
+      return;
+    }
+
     const {
       fileList
     } = this.data;
@@ -261,6 +276,8 @@ Page({
       calendarVisible: true
     });
   },
+
+
   handleCalendarConfirm(e) {
     const {
       value
@@ -273,9 +290,11 @@ Page({
     const selectedDate = format(value)
     this.setData({
       selectedDate: selectedDate,
-      monthTime: selectedDate
+      monthTime: selectedDate,
+      disabled:true,
+      timeModeNumber:"2"
     });
-    this.getRepeatText
+    this.getRepeatText()
   },
 
   showTimePicker(e) {
@@ -342,9 +361,18 @@ Page({
   },
 
   onCityPicker() {
-    this.setData({
-      cityVisible: true
-    });
+    if(utils.isStringValid(app.globalData.userInfo.openId))
+    {
+      this.setData({
+        cityVisible: true
+      });
+    }else{
+      wx.showToast({
+        title: '先登录',
+        icon:'error'
+      })
+    }
+
   },
   onPickerChange(e) {
     const {
@@ -375,6 +403,9 @@ Page({
     const {
       value
     } = e.detail
+    this.setData({
+      timeModeNumber:value
+    })
     switch (value) {
       case '0':
         this.setData({
@@ -411,7 +442,7 @@ Page({
   },
 
   //立即发送
-  handldPush() {
+  handlePush() {
     this.handleData()
     if (!this.data.dataIsOk) {
       return;
@@ -460,7 +491,6 @@ Page({
   handleData() {
     //check
     const data = {}
-
     var pushUrl = API.PUSH_BASE_URL
     if (utils.isStringValid(this.data.choosenPushKey)) {
       data.pushKey = this.data.choosenPushKey
@@ -513,15 +543,22 @@ Page({
       dataIsOk: true
     })
   },
-  handlePlan() {
-    this.handleData()
+  handleSave() {
+    this.handleData();
+    if (!this.data.dataIsOk) {
+      return;
+    }
     this.setData({
       pushData: {
         timeMode: this.data.timeMode
       }
     })
     if (utils.isStringValid(this.data.pushTime)) {
-      data.pushTime = this.data.pushTime
+      this.setData({
+        pushData: {
+          pushTime: this.data.pushTime
+        }
+      })
     } else {
       wx.showToast({
         icon: 'none',
@@ -529,12 +566,7 @@ Page({
       })
       return
     }
-    this.setData({
-      pushData: {
-        pushTime: this.data.pushTime
-      }
-    })
-    data
+
     if (this.data.timeMode === 'everyweek' && this.data.weekTime.length == 0) {
       wx.showToast({
         icon: 'none',
@@ -559,10 +591,14 @@ Page({
         monthTime: this.data.monthTime
       }
     })
+    this.handleSendPlan()
   },
   //保存计划
-  handleSave() {
-
+  handleSendPlan() {
+    console.log(this.data.pushData)
+    wx.showToast({
+      title: '别急，没开发',
+    })
   },
 
   /**
