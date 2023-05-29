@@ -10,8 +10,8 @@ const util = require('../../utils/util');
 Page({
   data: {
     userInfo: {
-      avatarUrl: util.isStringValid(app.globalData.userInfo.avatar) ? app.globalData.userInfo.avatar : API.CDN_BASE_URL + '/avatar/100.png',
-      nickName: util.isStringValid(app.globalData.userInfo.nickName) ? app.globalData.userInfo.nickName : '点击登录',
+      avatarUrl: '',
+      nickName: '',
       openId: util.isStringValid(app.globalData.userInfo.openId) ? app.globalData.userInfo.openId : '',
     },
     hasUserInfo: util.isStringValid(app.globalData.userInfo.openId) ? true : false,
@@ -99,7 +99,7 @@ Page({
 
 
   handleTapUserInfo() {
-    if (!this.data.hasUserInfo) {
+    if (!util.isStringValid(app.globalData.userInfo.openId)) {
       wx.login({
         success: (res) => {
           if (res.code) {
@@ -119,14 +119,14 @@ Page({
           console.error('Failed to call login API:', err);
         }
       });
-    }else{
+    } else {
       wx.navigateTo({
         url: '/pages/updateinfo/index',
       })
     }
   },
 
-  
+
   handleUserCode(code) {
     this.showWxLoading('正在登陆')
     wx.request({
@@ -160,9 +160,16 @@ Page({
           app.globalData.userInfo.config = config;
           app.globalData.userInfo.photos = photoUrls;
           if (util.isStringValid(pushKey)) {
-            const pushKey = JSON.parse(pushKeyJson);
-            app.globalData.userInfo.pushKey = pushKey
+            const pushKey1 = JSON.parse(pushKey);
+            app.globalData.userInfo.pushKey = pushKey1
+            app.globalData.hasChangePushKey = true
           }
+          this.setData({
+            userInfo: {
+              nickName: nickname,
+              avatarUrl: avatar
+            }
+          })
         } else {
           this.getUserInfoAndProfile()
         }
@@ -174,6 +181,9 @@ Page({
           title: '登录失败',
         })
         console.log(error);
+      },
+      complete() {
+        wx.hideLoading()
       }
     });
   },
@@ -227,7 +237,7 @@ Page({
 
   //点击
   onTapKey() {
-    if (this.data.hasUserInfo) {
+    if (util.isStringValid(app.globalData.userInfo.openId)) {
       wx.navigateTo({
         url: '/pages/configkey/index',
       })
@@ -239,7 +249,7 @@ Page({
 
   },
   onTapAlbum() {
-    if (this.data.hasUserInfo) {
+    if (util.isStringValid(app.globalData.userInfo.openId)) {
       wx.navigateTo({
         url: '/pages/managephotos/index',
       })
@@ -260,11 +270,14 @@ Page({
 
   },
   onReady() {},
-  onShow(){
-      console.log(app.globalData.userInfo.nickName)
-      this.setData({
-        userInfo:{nickName:app.globalData.userInfo.nickName,avatarUrl:app.globalData.userInfo.avatar}
-      })
+  onShow() {
+    console.log(app.globalData.userInfo.nickName)
+    this.setData({
+      userInfo: {
+        nickName: util.isStringValid(app.globalData.userInfo.nickName) ? app.globalData.userInfo.nickName : '点击登录',
+        avatarUrl: util.isStringValid(app.globalData.userInfo.avatar) ? app.globalData.userInfo.avatar : API.CDN_BASE_URL + '/avatar/100.png'
+      }
+    })
   },
 
 })
