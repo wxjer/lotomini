@@ -3,17 +3,18 @@
 
 // 获取应用实例
 const app = getApp()
+
 const API = require('../../utils/api');
 const util = require('../../utils/util');
 
 Page({
   data: {
     userInfo: {
-      avatarUrl: util.isStringValid(app.globalData.userInfo.avatar) ? app.globalData.userInfo.avatar: API.CDN_BASE_URL + '/avatar/100.png',
-      nickName: util.isStringValid(app.globalData.userInfo.nickName) ? app.globalData.userInfo.nickName:'点击登录',
-      openId:util.isStringValid(app.globalData.userInfo.openId) ? app.globalData.userInfo.openId:'',
+      avatarUrl: util.isStringValid(app.globalData.userInfo.avatar) ? app.globalData.userInfo.avatar : API.CDN_BASE_URL + '/avatar/100.png',
+      nickName: util.isStringValid(app.globalData.userInfo.nickName) ? app.globalData.userInfo.nickName : '点击登录',
+      openId: util.isStringValid(app.globalData.userInfo.openId) ? app.globalData.userInfo.openId : '',
     },
-    hasUserInfo: util.isStringValid(app.globalData.userInfo.openId) ? true:false,
+    hasUserInfo: util.isStringValid(app.globalData.userInfo.openId) ? true : false,
     enable: false,
     loadingProps: {
       size: '50rpx',
@@ -25,10 +26,9 @@ Page({
     this.setData({
       enable: true
     });
-    if(hasUserInfo)
-    {
+    if (hasUserInfo) {
       this.requestUserInfo()
-    }else{
+    } else {
       setTimeout(() => {
         this.setData({
           enable: false
@@ -39,34 +39,47 @@ Page({
   },
 
   //请求getUser接口
-  requestUserInfo(){
+  requestUserInfo() {
     wx.request({
       url: API.API_URLS.getUserProfile,
       data: {
         userID: this.data.userInfo.openId
       },
-      method:'GET',
-      success: function(res) {
-          const{ avatar, nickname, pushKey, config,photoUrls} = res.data
-          this.setData({
-            userInfo:{avatarUrl:avatar, nickName:nickname}
-          })
-          if(util.isStringValid(pushKey))
-          {
-              wx.setStorage(API.STORAGE_TAG.pushKeyJson,pushKey)
-              const pushKeys = JSON.parse(pushKey)
-              app.globalData.userInfo.pushKey=pushKeys
+      method: 'GET',
+      success: function (res) {
+        const {
+          avatar,
+          nickname,
+          pushKey,
+          config,
+          photoUrls
+        } = res.data
+        this.setData({
+          userInfo: {
+            avatarUrl: avatar,
+            nickName: nickname
           }
-          if(photoUrls){
-            wx.setStorage(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
-          }
-          app.globalData.userInfo={ avatarUrl:avatar, nickName:nickname, config,photos:photoUrls}
+        })
+        if (util.isStringValid(pushKey)) {
+          wx.setStorage(API.STORAGE_TAG.pushKeyJson, pushKey)
+          const pushKeys = JSON.parse(pushKey)
+          app.globalData.userInfo.pushKey = pushKeys
+        }
+        if (photoUrls) {
+          wx.setStorage(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
+        }
+        app.globalData.userInfo = {
+          avatarUrl: avatar,
+          nickName: nickname,
+          config,
+          photos: photoUrls
+        }
 
       },
-      fail: function(err) {
-         wx.showToast({
-           title: '刷新失败',
-         })
+      fail: function (err) {
+        wx.showToast({
+          title: '刷新失败',
+        })
       }
     })
   },
@@ -79,6 +92,9 @@ Page({
   hideWxLoading() {
     wx.hideLoading()
   },
+
+
+
 
 
 
@@ -98,13 +114,19 @@ Page({
             console.error('Login failed:', res.errMsg);
           }
         },
-        fail:  (err)=>{
+        fail: (err) => {
           this.showToast('登录失败')
           console.error('Failed to call login API:', err);
         }
       });
+    }else{
+      wx.navigateTo({
+        url: '/pages/updateinfo/index',
+      })
     }
   },
+
+  
   handleUserCode(code) {
     this.showWxLoading('正在登陆')
     wx.request({
@@ -117,12 +139,16 @@ Page({
         // 请求成功的回调函数
         console.log(res.data); // 打印响应数据
         const {
-          id,nickname,avatar,pushKey,config,photoUrls
+          id,
+          nickname,
+          avatar,
+          pushKey,
+          config,
+          photoUrls
         } = res.data;
         wx.setStorageSync(API.STORAGE_TAG.openId, id)
         app.globalData.userInfo.openId = id;
-        if(util.isStringValid(nickname)&&util.isStringValid(avatar))
-        {
+        if (util.isStringValid(nickname) && util.isStringValid(avatar)) {
           wx.setStorage(API.STORAGE_TAG.nickName, nickname)
           wx.setStorage(API.STORAGE_TAG.avatar, avatar)
           wx.setStorage(API.STORAGE_TAG.pushKeyJson, pushKey)
@@ -133,12 +159,11 @@ Page({
           app.globalData.userInfo.avatar = avatar;
           app.globalData.userInfo.config = config;
           app.globalData.userInfo.photos = photoUrls;
-          if(util.isStringValid(pushKey))
-          {
-              const pushKey = JSON.parse(pushKeyJson);
-              app.globalData.userInfo.pushKey = pushKey
+          if (util.isStringValid(pushKey)) {
+            const pushKey = JSON.parse(pushKeyJson);
+            app.globalData.userInfo.pushKey = pushKey
           }
-        }else{
+        } else {
           this.getUserInfoAndProfile()
         }
       },
@@ -170,21 +195,21 @@ Page({
             nickName: nickName,
             avatarUrl: avatarUrl
           },
-          hasUserInfo:true
+          hasUserInfo: true
         })
         wx.request({
           url: API.API_URLS.createUser,
-          data:{
-            nickname:nickName,
-            avatar:avatarUrl,
-            userID:app.globalData.userInfo.openId
+          data: {
+            nickname: nickName,
+            avatar: avatarUrl,
+            userID: app.globalData.userInfo.openId
           },
-          method:'POST',
-          success:(res)=>{
-              console.log(res)
+          method: 'POST',
+          success: (res) => {
+            console.log(res)
           },
-          fail:(res)=>{
-              console.log(res)
+          fail: (res) => {
+            console.log(res)
           }
 
         })
@@ -201,32 +226,30 @@ Page({
   },
 
   //点击
-  onTapKey(){
-    if(this.data.hasUserInfo)
-    {
+  onTapKey() {
+    if (this.data.hasUserInfo) {
       wx.navigateTo({
         url: '/pages/configkey/index',
       })
-    }else{
+    } else {
       wx.showToast({
         title: '请先登录',
       })
     }
 
   },
-  onTapAlbum(){
-   if(this.data.hasUserInfo)
-   {
-    wx.navigateTo({
-      url: '/pages/managephotos/index',
-    })
-   }else{
-    wx.showToast({
-      title: '请先登录',
-    })
-   }
+  onTapAlbum() {
+    if (this.data.hasUserInfo) {
+      wx.navigateTo({
+        url: '/pages/managephotos/index',
+      })
+    } else {
+      wx.showToast({
+        title: '请先登录',
+      })
+    }
   },
-  onTapAlbumStorage(){
+  onTapAlbumStorage() {
     wx.showToast({
       title: '还没开发呢',
     })
@@ -236,8 +259,12 @@ Page({
   bindViewTap() {
 
   },
-  onReady() {
+  onReady() {},
+  onShow(){
+      console.log(app.globalData.userInfo.nickName)
+      this.setData({
+        userInfo:{nickName:app.globalData.userInfo.nickName,avatarUrl:app.globalData.userInfo.avatar}
+      })
   },
-
 
 })

@@ -8,9 +8,14 @@
   bind:scroll="onScroll"
 >
   <view class="user-info" bindtap="handleTapUserInfo">
-    <text class="nickname">{{userInfo.nickName}}</text>
+    <view class="avatar-view">
+      <text class="nickname">{{userInfo.nickName}}</text>
+    <t-icon name="edit-1" size="32rpx"  />
+    </view>
     <t-avatar class="avatar" shape="round" image="{{userInfo.avatarUrl}}" />
+
   </view>
+
 
   <t-cell title="管理key" bind:click="onTapKey" hover arrow />
   <t-cell title="管理相册" bind:click="onTapAlbum" hover arrow />

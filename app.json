@@ -5,7 +5,8 @@
     "pages/my/index",
     "pages/configkey/index",
     "pages/managephotos/index",
-    "pages/addkey/index"
+    "pages/addkey/index",
+    "pages/updateinfo/index"
   ],
   "window": {
     "backgroundTextStyle": "light",

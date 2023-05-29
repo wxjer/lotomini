@@ -1,0 +1,22 @@
+<!--pages/updateinfo/index.wxml-->
+
+<view
+class="container">
+<view class="user-info" bindtap="handleTapUserInfo">
+  <text class="nickname">{{nickName}}</text>
+  <t-avatar class="avatar" shape="round" image="{{avatar}}" />
+  </view>
+<view>
+<view class="test-class">
+  <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+  点击修改头像 
+ </button>
+ <form  bindsubmit="formsubmit" class="form-wrapper">
+  <view class="form-wrapper">
+    <input class="input-view" type="nickname" placeholder="请输入昵称" name="nickname" />
+    <button  class="btn_submit" form-type="submit" type="default">点击修改昵称</button>
+  </view>
+  </form>
+</view>
+  </view>
+</view>

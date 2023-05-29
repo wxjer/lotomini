@@ -1,7 +1,8 @@
 // api.js
 
-// const BASE_URL = 'https://lotoserver.5bug.cn';
 const BASE_URL = 'https://lotoserver.5bug.cn';
+
+// const BASE_URL = 'http://127.0.0.1:8787';
 const CDN_BASE_URL = 'https://img2.5bug.cn';
 const MUSIC_163_SONG_URL = 'orpheus://song/';
 const MUSIC_163_LIST_URL = 'orpheus://playlist/';

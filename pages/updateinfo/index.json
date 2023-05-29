@@ -1,14 +1,10 @@
 {
-  "navigationBarTitleText": "我",
+  "navigationBarTitleText": "修改信息",
   "usingComponents": {
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-input": "tdesign-miniprogram/input/input",
-    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-icon": "tdesign-miniprogram/icon/icon"
 
-
-
-  },
-  "disableScroll": true
+  }
 }
