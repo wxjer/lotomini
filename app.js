@@ -58,6 +58,7 @@ App({
     console.log(this.globalData)
   },
   globalData: {
+    hasChangePushKey:'',
     choose:'',
     userInfo: {
       nickName:'',

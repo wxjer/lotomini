@@ -1,15 +1,15 @@
 <!--index.wxml-->
 <view class="container">
   <scroll-view scroll-y="true" class="scroll-view">
-    <t-input label="推送标题" placeholder="嗯" bindchange="onTitleInput">
+    <t-input label="推送标题" placeholder="选填" bindchange="onTitleInput">
     </t-input>
     <view class="custom-divider" />
-    <t-input label="推送正文" placeholder="点击右边添加换行" bindchange="onContentInput" value="{{content}}" >
+    <t-input label="推送正文" placeholder="必填,点击右边添加换行" bindchange="onContentInput" value="{{content}}" >
       <t-icon slot="suffix"  name="enter" bind:click="onAddEnterTap" color="#00b40f"></t-icon>
     </t-input>
     <view class="custom-divider" />
     <view class="wrapper">
-      <t-input label="推送头像" placeholder="点击右边是选已上传" value="{{avatarUrl}}">
+      <t-input label="推送头像" placeholder="选填,点击右边是选已上传" value="{{avatarUrl}}">
         <t-icon slot="suffix" name="image" bind:click="onSelectAvatar" color="#00b40f"></t-icon>
       </t-input>
     </view>
@@ -20,13 +20,13 @@
       </t-upload>
     </view>
     <view class="custom-divider" />
-    <t-input label="附加歌曲" placeholder="请粘贴歌曲分享链接(选填)" value="{{songId}}" bindchange="onSongUrlPasted"/>
+    <t-input label="附加歌曲" placeholder="选填,请粘贴歌曲分享链接" value="{{songId}}" bindchange="onSongUrlPasted"/>
     <t-radio-group default-value="0" borderless t-class="music-id-radio-box" bind:change="onSongTypeChange" >
       <t-radio class="custom-radio" block="{{false}}" label="歌曲id" value="0" />
       <t-radio class="custom-radio" block="{{false}}" label="歌单id" value="1" />
     </t-radio-group>
     <view class="custom-divider" />
-    <t-input label="附加其他" placeholder="跟歌曲二选一，只能填一个(选填)" bindchange="onOtherPasted"/>
+    <t-input label="附加其他" placeholder="选填,跟歌曲二选一,不会别填" bindchange="onOtherPasted"/>
     <view class="custom-divider" />
     <t-cell class="mb-16" title="推送对象" arrow hover note="{{pushKeyTitle}}" bind:click="onCityPicker" />
     <view class="custom-divider" />
@@ -37,31 +37,31 @@
     <t-cell title="选择时间" hover note="{{minuteText || ''}}" arrow data-mode="minute" bindtap="showTimePicker" t-class="pannel-item" />
     <!-- 时分 -->
     <t-date-time-picker class="custom-picker" title="选择时间" visible="{{minuteVisible}}" mode="{{['null', 'minute']}}" value="{{minute}}" format="HH:mm" bindchange="onTimePickerConfirm" bindpick="onTimePickerColumnChange" bindcancel="hideTimePicker" />
-    <t-input label="重复" value='zeze' disabled />
-    <t-radio-group default-value="0" borderless t-class="music-id-radio-box">
+    <t-input label="重复" value="{{repeat}}" disabled />
+    <t-radio-group default-value="0" borderless t-class="music-id-radio-box" bind:change="onTimeModeChange">
       <t-radio class="custom-radio" block="{{false}}" label="每天" value="0" />
       <t-radio class="custom-radio" block="{{false}}" color="#00a870" label="每周" value="1" />
       <t-radio class="custom-radio" block="{{false}}" label="每月" value="2" />
       <t-radio class="custom-radio" block="{{false}}" label="单次" value="3" />
     </t-radio-group>
     <view class="custom-divider" />
-    <t-checkbox-group t-class="music-id-radio-box" borderless bind:change="onChange" defaultValue="{{demoCheckboxMax}}">
-      <t-checkbox block="{{false}}" value="checkbox1" label="一" />
-      <t-checkbox block="{{false}}" value="checkbox2" label="二" />
-      <t-checkbox block="{{false}}" value="checkbox3" label="三" />
-      <t-checkbox block="{{false}}" value="checkbox4" label="四" />
-      <t-checkbox block="{{false}}" value="checkbox5" label="五" />
-      <t-checkbox block="{{false}}" value="checkbox6" label="六" />
-      <t-checkbox block="{{false}}" value="checkbox7" label="日" />
+    <t-checkbox-group t-class="music-id-radio-box" borderless  bind:change="onChangeWeek" defaultValue="{{demoCheckboxMax}}">
+      <t-checkbox block="{{false}}"  disabled="{{disabled}}" value="0" label="一" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="1" label="二" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="2" label="三" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="3" label="四" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="4" label="五" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="5" label="六" />
+      <t-checkbox block="{{false}}" disabled="{{disabled}}" value="6" label="日" />
     </t-checkbox-group>
     <view class="custom-divider" />
     <t-calendar class="custom-calendar" visible="{{calendarVisible}}" bind:confirm="handleCalendarConfirm" bind:close="onClose" />
-    <t-cell arrow title="每月这个时间：" bind:tap="handleCalendar" note="{{selectedDate}}" />
+    <t-cell arrow title="每月：" bind:tap="handleCalendar" note="{{selectedDate}}" />
     <view class="custom-divider" />
     <view class="button-sp-area">
-      <button class="mini-btn" type="primary" size="default">立即发送</button>
+      <button class="mini-btn" type="primary" size="size" bindtap="handldPush" >立即发送</button>
       <view class="custom-divider" />
-      <button class="mini-btn" type="primary" size="default">保存计划</button>
+      <button class="mini-btn" type="primary" size="default" bindtap="handldSave" >保存计划</button>
     </view>
   </scroll-view>
 </view>

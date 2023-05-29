@@ -65,6 +65,7 @@ Page({
                     })
                     wx.setStorageSync(API.STORAGE_TAG.pushKeyJson,pushKeyJson)
                     app.globalData.userInfo.pushKey=pushKey
+                    app.globalData.hasChangePushKey=true
                   }else{
                     wx.showToast({
                       title: '编辑失败',
@@ -99,6 +100,7 @@ Page({
                  })
                  wx.setStorageSync(API.STORAGE_TAG.pushKeyJson,pushKeyJson)
                  app.globalData.userInfo.pushKey.push({title,key})
+                 app.globalData.hasChangePushKey = true
                  if(this.data.type!='edit')
                  {
                    this.setData({

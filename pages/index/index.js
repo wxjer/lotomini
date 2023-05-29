@@ -14,6 +14,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    disabled: true,
     hasClickAlbum: false,
     title: '',
     content: '',
@@ -22,23 +23,26 @@ Page({
     songUrl: '',
     songType: '',
     otherSchema: '',
-    timeMode: '',
+    timeMode: 'everyday',
     pushTime: '',
-    weekTime: '',
+    weekTime: [],
     monthTime: '',
     fileList: [],
     pushKeyTitle: '点击选择',
+    choosenPushKey: '',
     cityValue: [],
-    pushKey: app.globalData.userInfo.pushKey.map(item=>{
-      return{
-        value:item.key,
-        label:item.title
+    pushKey: app.globalData.userInfo.pushKey.map(item => {
+      return {
+        value: item.key,
+        label: item.title
       }
     }),
     mode: '',
-    minute: '23:59',
+    repeat: '',
     calendarVisible: false,
     selectedDate: '',
+    pushData: {},
+    dataIsOk: false
   },
 
   //标题
@@ -73,7 +77,7 @@ Page({
   onSelectAvatar(e) {
     if (utils.isStringValid(app.globalData.userInfo.openId)) {
       this.setData({
-        hasClickAlbum:true
+        hasClickAlbum: true
       })
       wx.navigateTo({
         url: '/pages/managephotos/index?type=choose',
@@ -129,7 +133,7 @@ Page({
             avatarUrl: API.CDN_BASE_URL + url
           })
           this.insertPhoto(this.data.avatarUrl)
-          app.globalData.choose=''
+          app.globalData.choose = ''
         } else {
           wx.showToast({
             title: '上传失败',
@@ -198,19 +202,19 @@ Page({
       avatarUrl: ""
     })
   },
-//onSongTypeChange
-onSongTypeChange(e){
-  console.log(e)
-  const{value} = e.detail
-  this.setData({
-    songUrl: value == "1" ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId
-  })
-  console.log(this.data.songUrl)
-},
-
+  //onSongTypeChange
+  onSongTypeChange(e) {
+    console.log(e)
+    const {
+      value
+    } = e.detail
+    this.setData({
+      songUrl: value == "1" ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId,
+      otherSchema: ''
+    })
+    console.log(this.data.songUrl)
+  },
   //上传图片结束
-
-
 
   //歌曲
   onSongUrlPasted(e) {
@@ -218,23 +222,33 @@ onSongTypeChange(e){
       value
     } = e.detail
     const songId = utils.extractIdFromUrl(value)
+    console.log(songId)
     if (songId) {
       this.setData({
         songId: songId,
-        songUrl: songType == 1 ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId
+        songUrl: this.data.songType == 1 ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId,
+        otherSchema: ''
+      })
+    } else {
+      wx.showToast({
+        icon: 'none',
+        title: '数字吖',
+      })
+      this.setData({
+        songId: ''
       })
     }
   },
 
   //other
-  onOtherPasted(){
+  onOtherPasted(e) {
     var {
       value
     } = e.detail;
     this.setData({
       otherSchema: value,
-      songId:'',
-      songUrl:''
+      songId: '',
+      songUrl: ''
     })
   },
 
@@ -253,12 +267,15 @@ onSongTypeChange(e){
     } = e.detail;
     const format = (val) => {
       const date = new Date(val);
-      return `${date.getMonth() + 1}-${date.getDate()}`;
+      return `${date.getDate()}`;
     };
 
+    const selectedDate = format(value)
     this.setData({
-      selectedDate: format(value),
+      selectedDate: selectedDate,
+      monthTime: selectedDate
     });
+    this.getRepeatText
   },
 
   showTimePicker(e) {
@@ -287,15 +304,42 @@ onSongTypeChange(e){
     } = this.data;
 
     console.log('confim', value);
-
     this.setData({
-      [mode]: value,
+      pushTime: value,
       [`${mode}Text`]: value,
     });
-
+    this.getRepeatText();
     this.hideTimePicker();
   },
 
+  //生成重复解释文本
+  getRepeatText() {
+    var reapeat = '';
+    switch (this.data.timeMode) {
+      case 'everyday':
+        reapeat = '每天' + this.data.pushTime
+        break;
+      case 'everyweek':
+        var result = "";
+        for (var i = 0; i < this.data.weekTime.length; i++) {
+          result += this.data.weekTime[i] + "、";
+        }
+        result = result.slice(0, -1);
+        reapeat = '每周' + result + ' ' + this.data.pushTime
+        break;
+      case 'everymonth':
+        reapeat = '每月' + this.data.monthTime + this.data.pushTime
+        break;
+      case 'single':
+        reapeat = this.data.pushTime + '执行一次'
+        break;
+      default:
+        break;
+    }
+    this.setData({
+      repeat: reapeat
+    })
+  },
 
   onCityPicker() {
     this.setData({
@@ -304,14 +348,15 @@ onSongTypeChange(e){
   },
   onPickerChange(e) {
     const {
-      key
-    } = e.currentTarget.dataset;
-    const {
       value
     } = e.detail;
-
-    console.log('picker change:', e.detail);
+    const {
+      label
+    } = e.detail;
+    console.log('picker change:', e);
     this.setData({
+      pushKeyTitle: label[0],
+      choosenPushKey: value[0],
       cityVisible: false,
     });
   },
@@ -319,11 +364,205 @@ onSongTypeChange(e){
     const {
       key
     } = e.currentTarget.dataset;
-    console.log(e, '取消');
-    console.log('picker1 cancel:');
     this.setData({
       cityVisible: false,
     });
+  },
+
+
+  //点击timeMode
+  onTimeModeChange(e) {
+    const {
+      value
+    } = e.detail
+    switch (value) {
+      case '0':
+        this.setData({
+          timeMode: 'everyday',
+          disabled: true
+        })
+        this.getRepeatText()
+        break;
+      case '1':
+        this.setData({
+          timeMode: 'everyweek',
+          disabled: false
+        })
+        this.getRepeatText()
+        break;
+      case '2':
+        this.setData({
+          timeMode: 'everymonth',
+          disabled: true,
+          calendarVisible: true
+        })
+        this.getRepeatText()
+        break;
+      case '3':
+        this.setData({
+          timeMode: 'single',
+          disabled: true
+        })
+        this.getRepeatText()
+        break;
+      default:
+        break;
+    }
+  },
+
+  //立即发送
+  handldPush() {
+    this.handleData()
+    if (!this.data.dataIsOk) {
+      return;
+    }
+    wx.showLoading({
+      title: '发送中...',
+    })
+    wx.request({
+      url: API.API_URLS.sendPush,
+      data: {
+        pushUrl: this.data.pushData.pushUrl,
+        userID: app.globalData.userInfo.openId
+      },
+      method: 'POST',
+      success: (res) => {
+        console.log(res)
+        const {
+          statusCode
+        } = res
+        if (statusCode == 200) {
+          wx.showToast({
+            title: '发送成功',
+          })
+        } else {
+          wx.showToast({
+            icon: 'error',
+            title: '失败:' + statusCode,
+          })
+        }
+      },
+      fail: (res) => {
+        console.log(res)
+        wx.showLoading({
+          icon: 'error',
+          title: '发送失败',
+        })
+      },
+      complete: () => {
+        wx.hideLoading()
+      }
+    })
+    this.setData({
+      dataIsOk: false
+    })
+  },
+  handleData() {
+    //check
+    const data = {}
+
+    var pushUrl = API.PUSH_BASE_URL
+    if (utils.isStringValid(this.data.choosenPushKey)) {
+      data.pushKey = this.data.choosenPushKey
+      data.pushPerson = this.data.pushKeyTitle
+      pushUrl += data.pushKey
+    } else {
+      wx.showToast({
+        icon: 'none',
+        title: '发给谁?',
+      })
+      return
+    }
+    data.title = this.data.title.trim().replace(' ', '%20')
+    if (utils.isStringValid(data.title)) {
+      pushUrl += '/' + data.title
+    }
+    if (!utils.isStringValid(this.data.content)) {
+      wx.showToast({
+        icon: 'none',
+        title: '填下正文',
+      })
+      return;
+    } else {
+      data.content = this.data.content.trim().replace(' ', '%20')
+      pushUrl += '/' + data.content
+    }
+    data.avatarUrl = this.data.avatarUrl.trim()
+    var isFirstParam = true
+    if (utils.isStringValid(data.avatarUrl)) {
+      const temp = isFirstParam ? '?' : '&'
+      pushUrl += temp + 'icon=' + data.avatarUrl
+      isFirstParam = false
+    }
+    data.songUrl = this.data.songUrl.trim()
+    if (utils.isStringValid(data.songUrl)) {
+      const temp = isFirstParam ? '?' : '&'
+      pushUrl += temp + 'url=' + data.songUrl
+      isFirstParam = false
+    }
+    data.other = this.data.otherSchema.trim()
+    if (utils.isStringValid(data.other)) {
+      const temp = isFirstParam ? '?' : '&'
+      pushUrl += temp + 'url=' + data.other
+      isFirstParam = false
+    }
+    data.pushUrl = pushUrl
+    console.log(data)
+    this.setData({
+      pushData: data,
+      dataIsOk: true
+    })
+  },
+  handlePlan() {
+    this.handleData()
+    this.setData({
+      pushData: {
+        timeMode: this.data.timeMode
+      }
+    })
+    if (utils.isStringValid(this.data.pushTime)) {
+      data.pushTime = this.data.pushTime
+    } else {
+      wx.showToast({
+        icon: 'none',
+        title: '啥时发?',
+      })
+      return
+    }
+    this.setData({
+      pushData: {
+        pushTime: this.data.pushTime
+      }
+    })
+    data
+    if (this.data.timeMode === 'everyweek' && this.data.weekTime.length == 0) {
+      wx.showToast({
+        icon: 'none',
+        title: '每周哪天?',
+      })
+      return
+    }
+    this.setData({
+      pushData: {
+        weekTime: this.data.weekTime
+      }
+    })
+    if (this.data.timeMode === 'everymonth' && !utils.isStringValid(this.data.monthTime)) {
+      wx.showToast({
+        icon: 'none',
+        title: '每月哪天?',
+      })
+      return
+    }
+    this.setData({
+      pushData: {
+        monthTime: this.data.monthTime
+      }
+    })
+  },
+  //保存计划
+  handleSave() {
+
   },
 
   /**
@@ -345,31 +584,60 @@ onSongTypeChange(e){
    */
   onShow() {
     console.log('onShow')
-    if(this.data.hasClickAlbum){
+    if (this.data.hasClickAlbum) {
       this.setData({
-        hasClickAlbum:false
+        hasClickAlbum: false
       })
       const chooseUrl = app.globalData.choose
-      if(utils.isStringValid(chooseUrl))
-      {
-        if(this.data.avatarUrl !== chooseUrl)
-        {
+      console.log(chooseUrl)
+      if (utils.isStringValid(chooseUrl)) {
+        if (this.data.avatarUrl !== chooseUrl) {
           this.setData({
-            avatarUrl:chooseUrl,
-            fileList: [{url:chooseUrl}],
+            avatarUrl: chooseUrl,
+            fileList: [{
+              url: chooseUrl
+            }],
           })
           console.log(this.data.fileList)
         }
       }
     }
+
+    if(app.globalData.hasChangePushKey){
+      this.setData({
+        pushKey: app.globalData.userInfo.pushKey.map(item => {
+          return {
+            value: item.key,
+            label: item.title
+          }
+        }),
+        pushKeyTitle:'点击选择',
+        choosenPushKey:''
+      })
+      app.globalData.hasChangePushKey = false
+    }
+
+  },
+
+
+
+  //onChangeWeek
+  onChangeWeek(e) {
+    const {
+      value
+    } = e.detail
+    var intArray = value.map(Number);
+    intArray.sort();
+    var otherArray = ["一", "二", "三", "四", "五", "六", "日"];
+    var newArray = intArray.map(function (index) {
+      return otherArray[index];
+    });
+    console.log(newArray)
+
     this.setData({
-      pushKey: app.globalData.userInfo.pushKey.map(item=>{
-        return{
-          value:item.key,
-          label:item.title
-        }
-      }),
+      weekTime: newArray
     })
+    this.getRepeatText()
   },
 
   /**

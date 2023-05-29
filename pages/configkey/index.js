@@ -75,6 +75,7 @@ Page({
             keyArray: pushKey
           })
           app.globalData.userInfo.pushKey = pushKey
+          app.globalData.hasChangePushKey = true
           wx.setStorageSync(API.STORAGE_TAG.pushKeyJson, JSON.stringify(pushKey))
         } else {
           wx.showToast({

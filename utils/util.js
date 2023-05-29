@@ -29,8 +29,18 @@ function extractIdFromUrl(url){
   if (match) {
     return match[1];
   } else {
-    return null;
+    return isNumericString(url);
   }
+}
+
+function isNumericString(str) {
+  const isStr = /^\d+$/.test(str);
+  if(isStr){
+    return str
+  }else{
+    return undefined
+  }
+
 }
 
 module.exports = {

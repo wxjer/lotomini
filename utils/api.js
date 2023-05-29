@@ -5,6 +5,7 @@ const BASE_URL = 'http://127.0.0.1:8787';
 const CDN_BASE_URL = 'https://img2.5bug.cn';
 const MUSIC_163_SONG_URL = 'orpheus://song/';
 const MUSIC_163_LIST_URL = 'orpheus://playlist/';
+const PUSH_BASE_URL = 'https://bark.5bug.cn/';
 const BASE = {
 
 }
@@ -19,6 +20,9 @@ const API_URLS = {
   getAllPhotos:`${BASE_URL}/api/albums/getAllPhotos`,
   deletePhoto:`${BASE_URL}/api/albums/deletePhoto`,
   deletePhotos:`${BASE_URL}/api/albums/deletePhotos`,
+  sendPush:`${BASE_URL}/api/push/send`,
+  savePushPlan:`${BASE_URL}/api/push/save`,
+  deletePushPlan:`${BASE_URL}/api/push/delete`
 };
 
 const STORAGE_TAG = {
@@ -38,4 +42,5 @@ module.exports = {
   MUSIC_163_LIST_URL:MUSIC_163_LIST_URL,
   BASE:BASE,
   STORAGE_TAG:STORAGE_TAG,
+  PUSH_BASE_URL:PUSH_BASE_URL,
 }
