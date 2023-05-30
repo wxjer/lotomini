@@ -26,7 +26,7 @@ Page({
     this.setData({
       enable: true
     });
-    if (hasUserInfo) {
+    if (util.isStringValid(app.globalData.userInfo.openId)) {
       this.requestUserInfo()
     } else {
       setTimeout(() => {
@@ -43,36 +43,40 @@ Page({
     wx.request({
       url: API.API_URLS.getUserProfile,
       data: {
-        userID: this.data.userInfo.openId
+        userID: app.globalData.userInfo.openId
       },
       method: 'GET',
-      success: function (res) {
+      success:  (res) =>{
         const {
           avatar,
           nickname,
           pushKey,
           config,
           photoUrls
-        } = res.data
-        this.setData({
-          userInfo: {
-            avatarUrl: avatar,
-            nickName: nickname
-          }
-        })
-        if (util.isStringValid(pushKey)) {
+        } = res.data;
+          console.log(res.data)
+        if (util.isStringValid(nickname) && util.isStringValid(avatar)) {
+          wx.setStorageSync(API.STORAGE_TAG.nickName, nickname)
+          wx.setStorageSync(API.STORAGE_TAG.avatar, avatar)
           wx.setStorageSync(API.STORAGE_TAG.pushKeyJson, pushKey)
-          const pushKeys = JSON.parse(pushKey)
-          app.globalData.userInfo.pushKey = pushKeys
-        }
-        if (photoUrls) {
+          wx.setStorageSync(API.STORAGE_TAG.config, config)
           wx.setStorageSync(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
-        }
-        app.globalData.userInfo = {
-          avatarUrl: avatar,
-          nickName: nickname,
-          config,
-          photos: photoUrls
+
+          app.globalData.userInfo.nickName = nickname;
+          app.globalData.userInfo.avatar = avatar;
+          app.globalData.userInfo.config = config;
+          app.globalData.userInfo.photos = photoUrls;
+          if (util.isStringValid(pushKey)) {
+            const pushKey1 = JSON.parse(pushKey);
+            app.globalData.userInfo.pushKey = pushKey1
+            app.globalData.hasChangePushKey = true
+          }
+          this.setData({
+            userInfo: {
+              nickName: nickname,
+              avatarUrl: avatar
+            }
+          })
         }
 
       },
@@ -80,6 +84,13 @@ Page({
         wx.showToast({
           title: '刷新失败',
         })
+      },
+      complete:()=>{
+        setTimeout(() => {
+          this.setData({
+            enable: false
+          });
+        }, 1500);
       }
     })
   },
