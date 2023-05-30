@@ -19,7 +19,7 @@ function replaceBlank(str,target) {
 }
 function isStringValid(str) {
   const result = str !== null && str !== undefined && str.trim() !== ''
-  console.log('isStringValid'+result)
+  // console.log(result)
   return result;
 }
 

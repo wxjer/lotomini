@@ -185,7 +185,7 @@ Page({
               list: data.map(item => item.photoUrl)
             })
             app.globalData.userInfo.photos = this.data.list
-            wx.setStorage(API.API_URLS.photosJson, JSON.stringify(this.data.list))
+            wx.setStorageSync(API.API_URLS.photosJson, JSON.stringify(this.data.list))
           }
         } else {
           this.setData({

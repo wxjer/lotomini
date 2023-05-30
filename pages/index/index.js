@@ -21,7 +21,7 @@ Page({
     avatarUrl: '',
     songId: '',
     songUrl: '',
-    songType: '',
+    songType: '0',
     otherSchema: '',
     timeMode: 'everyday',
     timeModeNumber:"0",
@@ -237,11 +237,10 @@ Page({
       value
     } = e.detail
     const songId = utils.extractIdFromUrl(value)
-    console.log(songId)
     if (songId) {
       this.setData({
         songId: songId,
-        songUrl: this.data.songType == 1 ? API.MUSIC_163_LIST_URL + this.data.songId : API.MUSIC_163_SONG_URL + this.data.songId,
+        songUrl: this.data.songType == '1' ? (API.MUSIC_163_LIST_URL + songId ): (API.MUSIC_163_SONG_URL + songId),
         otherSchema: ''
       })
     } else {
@@ -253,6 +252,7 @@ Page({
         songId: ''
       })
     }
+    console.log(this.data.songUrl)
   },
 
   //other
@@ -503,8 +503,10 @@ Page({
       })
       return
     }
-    data.title = this.data.title.trim().replace(' ', '%20')
-    if (utils.isStringValid(data.title)) {
+    
+    if (utils.isStringValid(this.data.title)) {
+      const encodedTitle = encodeURIComponent(this.data.title);
+      data.title = encodedTitle
       pushUrl += '/' + data.title
     }
     if (!utils.isStringValid(this.data.content)) {
@@ -514,7 +516,9 @@ Page({
       })
       return;
     } else {
-      data.content = this.data.content.trim().replace(' ', '%20')
+      const content = this.data.content.trim().replace(/\%0a/g,'\n')
+      console.log(content)
+      data.content =  encodeURIComponent(content);
       pushUrl += '/' + data.content
     }
     data.avatarUrl = this.data.avatarUrl.trim()
@@ -619,7 +623,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    console.log('onShow')
+    console.log(app.globalData)
     if (this.data.hasClickAlbum) {
       this.setData({
         hasClickAlbum: false
@@ -638,21 +642,21 @@ Page({
         }
       }
     }
-
+    this.setData({
+      pushKey: app.globalData.userInfo.pushKey.map(item => {
+        return {
+          value: item.key,
+          label: item.title
+        }
+      }),
+    })
     if(app.globalData.hasChangePushKey){
       this.setData({
-        pushKey: app.globalData.userInfo.pushKey.map(item => {
-          return {
-            value: item.key,
-            label: item.title
-          }
-        }),
         pushKeyTitle:'点击选择',
         choosenPushKey:''
       })
       app.globalData.hasChangePushKey = false
     }
-
   },
 
 

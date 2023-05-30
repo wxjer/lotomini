@@ -4,7 +4,7 @@
     <t-input label="推送标题" placeholder="选填" bindchange="onTitleInput">
     </t-input>
     <view class="custom-divider" />
-    <t-input label="推送正文" placeholder="必填,点击右边添加换行" bindchange="onContentInput" value="{{content}}" >
+    <t-input label="推送正文" placeholder="必填,点击右边添加换行"  bindchange="onContentInput" value="{{content}}" >
       <t-icon slot="suffix"  name="enter" bind:click="onAddEnterTap" color="#00b40f"></t-icon>
     </t-input>
     <view class="custom-divider" />
@@ -26,7 +26,7 @@
       <t-radio class="custom-radio" block="{{false}}" label="歌单id" value="1" />
     </t-radio-group>
     <view class="custom-divider" />
-    <t-input label="附加其他" placeholder="选填,跟歌曲二选一,不会别填" bindchange="onOtherPasted"/>
+    <t-input label="附加其他" value="{{otherSchema}}" placeholder="选填,跟歌曲二选一,不会别填" bindchange="onOtherPasted"/>
     <view class="custom-divider" />
     <t-cell class="mb-16" title="推送对象" arrow hover note="{{pushKeyTitle}}" bind:click="onCityPicker" />
     <view class="custom-divider" />

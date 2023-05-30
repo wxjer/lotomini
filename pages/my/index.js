@@ -61,12 +61,12 @@ Page({
           }
         })
         if (util.isStringValid(pushKey)) {
-          wx.setStorage(API.STORAGE_TAG.pushKeyJson, pushKey)
+          wx.setStorageSync(API.STORAGE_TAG.pushKeyJson, pushKey)
           const pushKeys = JSON.parse(pushKey)
           app.globalData.userInfo.pushKey = pushKeys
         }
         if (photoUrls) {
-          wx.setStorage(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
+          wx.setStorageSync(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
         }
         app.globalData.userInfo = {
           avatarUrl: avatar,
@@ -149,10 +149,10 @@ Page({
         wx.setStorageSync(API.STORAGE_TAG.openId, id)
         app.globalData.userInfo.openId = id;
         if (util.isStringValid(nickname) && util.isStringValid(avatar)) {
-          wx.setStorage(API.STORAGE_TAG.nickName, nickname)
-          wx.setStorage(API.STORAGE_TAG.avatar, avatar)
-          wx.setStorage(API.STORAGE_TAG.pushKeyJson, pushKey)
-          wx.setStorage(API.STORAGE_TAG.config, config)
+          wx.setStorageSync(API.STORAGE_TAG.nickName, nickname)
+          wx.setStorageSync(API.STORAGE_TAG.avatar, avatar)
+          wx.setStorageSync(API.STORAGE_TAG.pushKeyJson, pushKey)
+          wx.setStorageSync(API.STORAGE_TAG.config, config)
           wx.setStorageSync(API.STORAGE_TAG.photosJson, JSON.stringify(photoUrls))
 
           app.globalData.userInfo.nickName = nickname;
