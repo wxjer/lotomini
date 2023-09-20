@@ -5,12 +5,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["wechat", "loto", "starter"],
+  "keywords": [
+    "wechat",
+    "loto",
+    "starter"
+  ],
   "author": "wxj",
   "license": "MIT",
   "description": "a bark tool for wechat miniprogram ",
   "dependencies": {
+    "express": "^4.18.2",
     "tdesign-miniprogram": "^1.1.7"
-  },
-  "devDependencies": {}
+  }
 }
